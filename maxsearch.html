@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KidReads | Global Search</title>
+
+<style>
+/* (Reuse the same root and styles from index.html for consistency) */
+/* ... but add the Search Bar specific styles ... */
+#searchBar {
+    padding: 15px 25px;
+    border-radius: 50px;
+    border: 2px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.2);
+    color: white;
+    width: 300px;
+    font-size: 1.1rem;
+    outline: none;
+    backdrop-filter: blur(10px);
+    transition: width 0.3s ease;
+}
+#searchBar:focus { width: 400px; background: white; color: black; }
+#searchBar::placeholder { color: rgba(255,255,255,0.7); }
+</style>
+</head>
+<body>
+<header>
+    <div class="app-toggle">
+        <a href="index.html" class="toggle-btn">MAX Browse</a>
+        <a href="maxsearch.html" class="toggle-btn active">Global Search</a>
+    </div>
+    <h1>🔍 Global Search</h1>
+    <input type="text" id="searchBar" placeholder="Search 13,000+ books...">
+</header>
+
+<main id="bookGrid"></main>
+
+<script>
+let allBooks = [];
+let searchResults = [];
+const bookGrid = document.getElementById('bookGrid');
+const searchBar = document.getElementById('searchBar');
+
+async function init() {
+    const response = await fetch('mega_10k_kids.json');
+    allBooks = await response.json();
+}
+
+searchBar.oninput = () => {
+    const term = searchBar.value.toLowerCase();
+    if (term.length < 2) {
+        bookGrid.innerHTML = "";
+        return;
+    }
+
+    searchResults = allBooks.filter(b => 
+        b.title.toLowerCase().includes(term) || 
+        b.author.toLowerCase().includes(term)
+    ).slice(0, 50); // Show top 50 matches instantly
+
+    renderResults();
+};
+
+function renderResults() {
+    bookGrid.innerHTML = searchResults.length ? "" : "<div class='loading'>No books found... try another title!</div>";
+    searchResults.forEach(book => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.innerHTML = `
+            <img src="${book.cover}" alt="${book.title}">
+            <div class="book-info">
+                <h4>${book.title}</h4>
+                <p>${book.author}</p>
+            </div>
+        `;
+        bookGrid.appendChild(card);
+    });
+}
+
+init();
+</script>
+</body>
+</html>
