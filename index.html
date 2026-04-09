@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KidReads | MAX Browse</title>
+
+<style>
+:root {
+    --primary: #4a90e2;
+    --primary-dark: #357abd;
+    --bg-body: #f0f2f5; 
+    --card-bg: #ffffff;
+    --text-main: #2d3436;
+    --text-muted: #636e72;
+    --glass: rgba(255, 255, 255, 0.2);
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-body);
+}
+
+header {
+    padding: 40px 20px;
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px; 
+}
+
+header h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    margin: 0;
+}
+
+.app-toggle {
+    display: flex;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 5px;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+}
+
+.toggle-btn {
+    text-decoration: none;
+    padding: 8px 20px;
+    border-radius: 40px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+}
+
+.toggle-btn.active { background: white; color: var(--primary-dark); }
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+select {
+    padding: 12px 20px;
+    border-radius: 14px;
+    background: var(--glass);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+select option { color: black; }
+
+#bookGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 30px;
+    padding: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.book-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.book-card:hover { transform: translateY(-10px); }
+.book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+
+.book-info { padding: 20px; }
+.book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); height: 2.8rem; overflow: hidden; }
+.book-info p { margin: 5px 0; font-size: 0.85rem; color: var(--text-muted); }
+
+.badge-container { display: flex; gap: 5px; margin-top: 10px; }
+.badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+.genre-badge { background: #e1f5fe; color: #0288d1; }
+.level-badge { background: #f1f8e9; color: #558b2f; }
+
+.loading { text-align: center; padding: 100px; font-size: 1.5rem; color: var(--primary-dark); grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="app-toggle">
+        <a href="index.html" class="toggle-btn active">MAX Browse</a>
+        <a href="maxsearch.html" class="toggle-btn">Global Search</a>
+    </div>
+    
+    <h1>📚 KidReads MAX</h1>
+
+    <div class="controls">
+        <select id="ageSelect">
+            <option value="1-4">Ages 1-4</option>
+            <option value="5-8">Ages 5-8</option>
+            <option value="9-12" selected>Ages 9-12</option>
+            <option value="13+">Teens 13+</option>
+        </select>
+
+        <select id="genreSelect">
+            <option value="">All Genres</option>
+            <option value="fantasy">Fantasy</option>
+            <option value="adventure">Adventure</option>
+            <option value="mystery">Mystery</option>
+            <option value="animals">Animals</option>
+            <option value="humor">Humor</option>
+        </select>
+    </div>
+</header>
+
+<main id="bookGrid"></main>
+
+<script>
+let allBooks = [];
+let filteredBooks = [];
+let displayedCount = 0;
+const LOAD_BATCH = 40;
+
+const bookGrid = document.getElementById('bookGrid');
+const ageSelect = document.getElementById('ageSelect');
+const genreSelect = document.getElementById('genreSelect');
+
+// Load Local JSON
+async function init() {
+    bookGrid.innerHTML = "<div class='loading'>Opening the Great Library... 🪄</div>";
+    try {
+        const response = await fetch('mega_10k_kids.json');
+        allBooks = await response.json();
+        updateFilter();
+    } catch (e) {
+        bookGrid.innerHTML = "<div class='loading'>Error: Make sure mega_10k_kids.json is in your folder!</div>";
+    }
+}
+
+function updateFilter() {
+    bookGrid.innerHTML = "";
+    displayedCount = 0;
+    
+    const age = ageSelect.value;
+    const genre = genreSelect.value.toLowerCase();
+
+    // Mapping UI Age groups to Scraped Levels
+    const ageMap = {
+        "1-4": ["pre-k", "picture book", "kindergarten"],
+        "5-8": ["grade 1", "grade 2", "grade 3", "early reader"],
+        "9-12": ["grade 4", "grade 5", "grade 6", "middle grade"],
+        "13+": ["grade 7", "grade 8", "ya", "young adult", "teen"]
+    };
+
+    filteredBooks = allBooks.filter(book => {
+        const matchesGenre = genre === "" || (book.genre || "").toLowerCase().includes(genre);
+        const level = (book.reading_level || "").toLowerCase();
+        const matchesAge = ageMap[age].some(term => level.includes(term)) || level === "general";
+        return matchesGenre && matchesAge;
+    });
+
+    loadMore();
+}
+
+function loadMore() {
+    const nextBatch = filteredBooks.slice(displayedCount, displayedCount + LOAD_BATCH);
+    nextBatch.forEach(book => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.innerHTML = `
+            <img src="${book.cover || 'https://via.placeholder.com/200x300'}" alt="${book.title}">
+            <div class="book-info">
+                <h4>${book.title}</h4>
+                <p>${book.author}</p>
+                <div class="badge-container">
+                    <span class="badge genre-badge">${book.genre || 'Story'}</span>
+                    <span class="badge level-badge">${book.reading_level || 'General'}</span>
+                </div>
+            </div>
+        `;
+        bookGrid.appendChild(card);
+    });
+    displayedCount += LOAD_BATCH;
+}
+
+window.onscroll = () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        if (displayedCount < filteredBooks.length) loadMore();
+    }
+};
+
+ageSelect.onchange = updateFilter;
+genreSelect.onchange = updateFilter;
+init();
+</script>
+</body>
+</html>
