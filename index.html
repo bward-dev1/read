@@ -43,8 +43,6 @@ header {
 
 .clear-btn { background: rgba(231, 76, 60, 0.3); padding: 8px 12px; display: none; }
 
-#advBtn.active-adventure { background: #f39c12; box-shadow: 0 0 15px rgba(243, 156, 18, 0.5); }
-
 .controls { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
 
 select {
@@ -92,8 +90,6 @@ select {
     <h1>📚 KidReads MAX</h1>
 
     <div class="controls">
-        <button id="advBtn" class="toggle-btn" onclick="toggleAdventure()">🧭 Adventure Mode: OFF</button>
-        
         <select id="ageSelect">
             <option value="1-4">Ages 1-4</option>
             <option value="5-8">Ages 5-8</option>
@@ -106,8 +102,9 @@ select {
             <option value="fantasy">Fantasy</option>
             <option value="adventure">Adventure</option>
             <option value="mystery">Mystery</option>
-            <option value="animals">Animals</option>
             <option value="humor">Humor</option>
+            <option value="graphic novel">Graphic Novels</option>
+            <option value="scary">Scary</option>
         </select>
     </div>
 </header>
@@ -118,7 +115,6 @@ select {
 let allBooks = [];
 let filteredBooks = [];
 let personalISBNs = JSON.parse(localStorage.getItem('kidreads_isbns')) || [];
-let adventureMode = false;
 let displayedCount = 0;
 const LOAD_BATCH = 40;
 
@@ -175,24 +171,15 @@ clearSync.onclick = () => {
     }
 };
 
-// --- 2. ADVENTURE MODE LOGIC ---
-function toggleAdventure() {
-    adventureMode = !adventureMode;
-    const btn = document.getElementById('advBtn');
-    btn.classList.toggle('active-adventure');
-    btn.innerText = adventureMode ? "🧭 Adventure Mode: ON" : "🧭 Adventure Mode: OFF";
-    updateFilter();
-}
-
-// --- 3. MAIN LIBRARY LOGIC ---
+// --- 2. MAIN LIBRARY LOGIC ---
 async function init() {
     updateUIStatus();
     try {
-        const response = await fetch('mega_10k_kids.json');
+        const response = await fetch('mega_11k_kids.json'); 
         allBooks = await response.json();
         updateFilter();
     } catch (e) {
-        bookGrid.innerHTML = "<div class='loading'>Make sure mega_10k_kids.json is in your folder!</div>";
+        bookGrid.innerHTML = "<div class='loading'>Make sure mega_11k_kids.json is in your folder!</div>";
     }
 }
 
@@ -203,10 +190,10 @@ function updateFilter() {
     const age = ageSelect.value;
     const genre = genreSelect.value.toLowerCase();
     const ageMap = {
-        "1-4": ["pre-k", "picture book", "k"],
-        "5-8": ["grade 1", "grade 2", "grade 3", "early reader"],
-        "9-12": ["grade 4", "grade 5", "grade 6", "middle grade"],
-        "13+": ["grade 7", "grade 8", "ya", "teen"]
+        "1-4": ["pre-k", "picture book", "k", "grade k-2"],
+        "5-8": ["grade 1", "grade 2", "grade 3", "early reader", "grades k-2", "grades 2-5"],
+        "9-12": ["grade 4", "grade 5", "grade 6", "middle grade", "grades 4-7", "grades 3-7"],
+        "13+": ["grade 7", "grade 8", "ya", "teen", "grades 5-12", "grades 7-12"]
     };
 
     filteredBooks = allBooks.filter(book => {
@@ -215,17 +202,12 @@ function updateFilter() {
         
         // Age check
         const level = (book.reading_level || "").toLowerCase();
-        const matchesAge = ageMap[age].some(term => level.includes(term)) || level === "general";
+        const matchesAge = ageMap[age].some(term => level.includes(term)) || level === "general" || level === "middle grade";
         
-        // Adventure check (Year 1998)
-        const year = parseInt(book.year) || 0;
-        let matchesTime = adventureMode ? (year <= 1998 && year !== 0) : (year > 1998 || year === 0);
-
-        // Goodreads "Personal" Priority check
-        // If they have ISBNs synced, we show those regardless of filters to make them feel "Personalised"
+        // Goodreads check
         const isPersonal = book.isbn && book.isbn.some(i => personalISBNs.includes(i));
 
-        return (matchesGenre && matchesAge && matchesTime) || isPersonal;
+        return (matchesGenre && matchesAge) || isPersonal;
     });
 
     // Sort: Personal Books always go to the TOP
@@ -246,11 +228,25 @@ function loadMore() {
         card.className = 'book-card';
         if (isFav) card.style.border = "2px solid #2ecc71";
         
+        // Google Books exact ISBN linking
+        let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
+        const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
+        if (isbnMatch && isbnMatch[1]) {
+            directLink = `https://books.google.com/books?vid=ISBN${isbnMatch[1]}`;
+        }
+        card.onclick = () => window.open(directLink, '_blank');
+        
+        // Change Unknown to a clickable prompt
+        let displayAuthor = book.author;
+        if (!displayAuthor || displayAuthor.toLowerCase().includes("unknown")) {
+            displayAuthor = '<span style="color: var(--primary); font-weight: 600;">🔍 Find Author on Google</span>';
+        }
+
         card.innerHTML = `
             <img src="${book.cover || 'https://via.placeholder.com/200x300'}" alt="${book.title}">
             <div class="book-info">
                 <h4>${book.title} ${isFav ? '✨' : ''}</h4>
-                <p>${book.author}</p>
+                <p style="margin: 5px 0; font-size: 0.85rem; color: var(--text-muted);">${displayAuthor}</p>
                 <div class="badge-container">
                     <span class="badge genre-badge">${book.genre || 'Story'}</span>
                     <span class="badge level-badge">${book.reading_level || 'General'}</span>
