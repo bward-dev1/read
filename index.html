@@ -38,7 +38,7 @@ header {
 
 .toggle-btn.active { background: white; color: var(--primary-dark); }
 
-.sync-label { background: rgba(46, 204, 113, 0.3); border: 1px solid rgba(255,255,255,0.2); }
+.sync-label { background: rgba(46, 204, 113, 0.3); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease; }
 .sync-label:hover { background: rgba(46, 204, 113, 0.5); }
 
 .clear-btn { background: rgba(231, 76, 60, 0.3); padding: 8px 12px; display: none; }
@@ -58,14 +58,15 @@ select {
 .book-card {
     background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow);
     transition: transform 0.3s ease; overflow: hidden; cursor: pointer;
+    display: flex; flex-direction: column;
 }
 .book-card:hover { transform: translateY(-10px); }
 .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
-.book-info { padding: 20px; }
-/* Fixed: Titles wrap taller without cutting off */
+.book-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+
 .book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); min-height: 2.8rem; line-height: 1.4; }
 
-.badge-container { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+.badge-container { display: flex; gap: 5px; margin-top: auto; padding-top: 10px; flex-wrap: wrap; }
 .badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; }
 .genre-badge { background: #e1f5fe; color: #0288d1; }
 .level-badge { background: #f1f8e9; color: #558b2f; }
@@ -138,26 +139,37 @@ function updateUIStatus() {
     }
 }
 
+// Fixed Goodreads Upload with Timeout Protection
 grUpload.addEventListener('change', function(e) {
     const file = e.target.files[0];
+    if (!file) return;
+
+    syncStatus.innerText = "🔄 Syncing...";
+    syncStatus.style.background = "#f39c12";
+
     const reader = new FileReader();
     reader.onload = function(event) {
-        const text = event.target.result;
-        const rows = text.split('\n');
-        const redFlags = ["erotica", "mature", "adult", "thriller", "horror"];
-        let extracted = [];
+        // Use setTimeout to prevent browser from hanging on large CSVs
+        setTimeout(() => {
+            const text = event.target.result;
+            const rows = text.split('\n');
+            const redFlags = ["erotica", "mature", "adult", "thriller", "horror"];
+            let extracted = [];
 
-        rows.forEach(row => {
-            const lower = row.toLowerCase();
-            if (redFlags.some(flag => lower.includes(flag))) return;
-            const isbnMatch = row.match(/(?:978|979)\d{10}/);
-            if (isbnMatch) extracted.push(isbnMatch[0]);
-        });
-            
-        personalISBNs = [...new Set(extracted)];
-        localStorage.setItem('kidreads_isbns', JSON.stringify(personalISBNs));
-        updateUIStatus();
-        updateFilter();
+            const isbnRegex = /(?:978|979)\d{10}/;
+
+            rows.forEach(row => {
+                const lower = row.toLowerCase();
+                if (redFlags.some(flag => lower.includes(flag))) return;
+                const match = row.match(isbnRegex);
+                if (match) extracted.push(match[0]);
+            });
+                
+            personalISBNs = [...new Set(extracted)];
+            localStorage.setItem('kidreads_isbns', JSON.stringify(personalISBNs));
+            updateUIStatus();
+            updateFilter();
+        }, 100);
     };
     reader.readAsText(file);
 });
@@ -200,7 +212,7 @@ function updateFilter() {
         const level = (book.reading_level || "").toLowerCase();
         const matchesAge = ageMap[age].some(term => level.includes(term)) || level === "general" || level === "middle grade";
         
-        // Goodreads check via URL extraction
+        // Goodreads check via ISBN extraction from cover URL
         const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
         const bookIsbn = isbnMatch ? isbnMatch[1] : null;
         const isPersonal = bookIsbn && personalISBNs.includes(bookIsbn);
@@ -229,8 +241,8 @@ function loadMore() {
         card.className = 'book-card';
         if (isFav) card.style.border = "2px solid #2ecc71";
         
-        // RESTORED: Google Books exact logic
-        let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
+        // Link Card to Google Books
+        let directLink = `https://www.google.com/search?tbm=bks&q=${encodeURIComponent(book.title + " " + (book.author !== "Unknown" ? book.author : ""))}`;
         if (isbnMatch && isbnMatch[1]) {
             directLink = `https://books.google.com/books?vid=ISBN${isbnMatch[1]}`;
         }
@@ -238,7 +250,7 @@ function loadMore() {
         
         let displayAuthor = book.author;
         if (!displayAuthor || displayAuthor.toLowerCase().includes("unknown")) {
-            displayAuthor = '<span style="color: var(--primary); font-weight: 600;">🔍 Find Author on Google</span>';
+            displayAuthor = '<span style="color: var(--primary); font-weight: 600;">🔍 Find Author on Google Books</span>';
         }
 
         card.innerHTML = `
