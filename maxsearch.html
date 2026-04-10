@@ -49,6 +49,12 @@ header {
 .book-info { padding: 20px; }
 .book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); height: 2.8rem; overflow: hidden; }
 .book-info p { margin: 5px 0; font-size: 0.85rem; color: var(--text-muted); }
+
+.badge-container { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+.badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; }
+.genre-badge { background: #e1f5fe; color: #0288d1; }
+.level-badge { background: #f1f8e9; color: #558b2f; }
+
 .loading { grid-column: 1 / -1; text-align: center; padding: 100px; font-size: 1.4rem; color: var(--primary-dark); }
 </style>
 </head>
@@ -59,7 +65,7 @@ header {
         <a href="maxsearch.html" class="toggle-btn active">Global Search</a>
     </div>
     <h1>🔍 Global Search</h1>
-    <input type="text" id="searchBar" placeholder="Search 1,900+ Scholastic books...">
+    <input type="text" id="searchBar" placeholder="Search 12,000+ Scholastic books...">
 </header>
 
 <main id="bookGrid"></main>
@@ -72,11 +78,11 @@ const searchBar = document.getElementById('searchBar');
 async function init() {
     bookGrid.innerHTML = "<div class='loading'>Loading the Global Index... 📡</div>";
     try {
-        const response = await fetch('mega_11k_kids.json'); 
+        const response = await fetch('mega_12k_kids.json'); 
         allBooks = await response.json();
         bookGrid.innerHTML = "<div class='loading'>Type above to find a book!</div>";
     } catch (e) {
-        bookGrid.innerHTML = "<div class='loading'>Error loading data.</div>";
+        bookGrid.innerHTML = "<div class='loading'>Error loading data. Make sure mega_12k_kids.json is uploaded!</div>";
     }
 }
 
@@ -89,7 +95,8 @@ searchBar.oninput = () => {
 
     const results = allBooks.filter(b => 
         (b.title || "").toLowerCase().includes(term) || 
-        (b.author || "").toLowerCase().includes(term)
+        (b.author || "").toLowerCase().includes(term) ||
+        (b.genre || "").toLowerCase().includes(term)
     ).slice(0, 60);
 
     renderResults(results);
@@ -124,6 +131,10 @@ function renderResults(results) {
             <div class="book-info">
                 <h4>${book.title}</h4>
                 <p style="margin: 5px 0; font-size: 0.85rem; color: var(--text-muted);">${displayAuthor}</p>
+                <div class="badge-container">
+                    <span class="badge genre-badge">${book.genre || 'Story'}</span>
+                    <span class="badge level-badge">${book.reading_level || 'General'}</span>
+                </div>
             </div>
         `;
         bookGrid.appendChild(card);
