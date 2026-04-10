@@ -6,152 +6,127 @@
     <title>KidReads | Global Search</title>
     <style>
         :root {
-            --primary: #4a90e2; --primary-dark: #357abd; --bg-body: #f0f2f5; 
-            --card-bg: #ffffff; --text-main: #2d3436; --text-muted: #636e72;
-            --glass: rgba(255, 255, 255, 0.15); --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --primary: #4a90e2;
+            --primary-dark: #357abd;
+            --bg-body: #f0f2f5; 
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+            --text-muted: #636e72;
+            --glass: rgba(255, 255, 255, 0.2);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
-        body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg-body); color: var(--text-main); }
-        
-        header { 
-            padding: 50px 20px; text-align: center; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%); 
-            color: white; display: flex; flex-direction: column; align-items: center; gap: 30px; 
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); }
+        header {
+            padding: 40px 20px; text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%);
+            color: white; display: flex; flex-direction: column; align-items: center; gap: 20px;
         }
+        .app-toggle {
+            display: flex; gap: 10px; background: rgba(255, 255, 255, 0.15);
+            padding: 5px; border-radius: 50px; backdrop-filter: blur(10px);
+        }
+        .toggle-btn { text-decoration: none; padding: 8px 20px; border-radius: 40px; font-size: 0.85rem; font-weight: 700; color: white; border:none; background:transparent; cursor:pointer;}
+        .toggle-btn.active { background: white; color: var(--primary-dark); }
 
-        /* --- IDENTICAL H1 --- */
-        h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            margin: 0;
-            letter-spacing: -1.5px;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        #searchBar {
+            padding: 15px 25px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.2); color: white; width: 300px; font-size: 1.1rem;
+            outline: none; backdrop-filter: blur(10px); transition: all 0.3s ease;
         }
-
-        .app-toggle { 
-            display: flex; align-items: center; gap: 10px; 
-            background: var(--glass); padding: 6px; border-radius: 50px; backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255,255,255,0.2); 
-        }
-        
-        .toggle-btn, .sync-label { 
-            text-decoration: none; padding: 10px 22px; border-radius: 40px; 
-            font-size: 0.85rem; font-weight: 700; color: white; border: none; cursor: pointer; 
-            background: transparent; transition: all 0.3s ease; 
-        }
-        
-        .toggle-btn.active { background: white; color: #764ba2; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .sync-label { background: rgba(46, 204, 113, 0.3); border: 1px solid rgba(255,255,255,0.2); }
-
-        .search-container {
-            display: flex; gap: 15px; width: 100%; max-width: 900px; 
-            background: var(--glass); padding: 10px; 
-            border-radius: 60px; border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(12px); transition: all 0.3s ease;
-        }
-        #searchBar { flex: 1; padding: 15px 30px; border: none; background: transparent; color: white; font-size: 1.2rem; outline: none; }
+        #searchBar:focus { width: 450px; background: white; color: black; }
         #searchBar::placeholder { color: rgba(255,255,255,0.7); }
-        #ageFilter { padding: 0 25px; border-radius: 40px; border: none; background: white; color: #4a00e0; font-weight: 700; cursor: pointer; }
 
-        #bookGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 35px; padding: 40px; max-width: 1400px; margin: 0 auto; }
-        .book-card { background: var(--card-bg); border-radius: 24px; box-shadow: var(--shadow); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden; cursor: pointer; display: flex; flex-direction: column; height: 100%; }
-        .book-card:hover { transform: translateY(-12px); }
-        .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #eee; }
-        .book-info { padding: 22px; flex-grow: 1; display: flex; flex-direction: column; }
-        .book-info h4 { margin: 0; font-size: 1.05rem; color: var(--text-main); font-weight: 800; min-height: 2.7rem; }
-        .book-info p { margin: 8px 0 0 0; font-size: 0.9rem; color: var(--text-muted); }
-        .find-link { color: #4a90e2 !important; font-weight: bold; }
-        .badge-container { display: flex; gap: 6px; margin-top: auto; padding-top: 18px; flex-wrap: wrap; }
-        .badge { font-size: 0.65rem; font-weight: 800; padding: 5px 10px; border-radius: 8px; text-transform: uppercase; }
-        .genre-badge { background: #e3f2fd; color: #1976d2; }
-        .level-badge { background: #f1f8e9; color: #388e3c; }
-        .status-msg { grid-column: 1/-1; text-align: center; padding: 100px; font-size: 1.2rem; color: #636e72; }
-        .load-more { text-align: center; padding: 60px; grid-column: 1 / -1; }
-        .btn-load { padding: 18px 50px; background: white; color: #4a00e0; border: none; border-radius: 50px; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        #bookGrid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px; padding: 40px; max-width: 1400px; margin: 0 auto;
+        }
+        .book-card {
+            background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow);
+            transition: transform 0.3s ease; overflow: hidden; cursor: pointer;
+        }
+        .book-card:hover { transform: translateY(-10px); }
+        .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+        .book-info { padding: 20px; }
+        .book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); height: 2.8rem; overflow: hidden; }
+        .book-info p { margin: 5px 0; font-size: 0.85rem; color: var(--text-muted); }
+        .loading { grid-column: 1 / -1; text-align: center; padding: 100px; font-size: 1.4rem; color: var(--primary-dark); }
     </style>
 </head>
 <body>
-    <header>
-        <nav class="app-toggle">
-            <div style="display: flex; gap: 5px;">
-                <a href="index.html" class="toggle-btn">MAX Browse</a>
-                <a href="maxsearch.html" class="toggle-btn active">Global Search</a>
+<header>
+    <div class="app-toggle">
+        <a href="index.html" class="toggle-btn">MAX Browse</a>
+        <a href="maxsearch.html" class="toggle-btn active">Global Search</a>
+    </div>
+    <h1>🔍 Global Search</h1>
+    <input type="text" id="searchBar" placeholder="Search 4,600+ Scholastic books...">
+</header>
+
+<main id="bookGrid"></main>
+
+<script>
+let allBooks = [];
+const bookGrid = document.getElementById('bookGrid');
+const searchBar = document.getElementById('searchBar');
+
+async function init() {
+    bookGrid.innerHTML = "<div class='loading'>Syncing Local Database... 📡</div>";
+    try {
+        const response = await fetch('mega_14k_kids.json'); 
+        allBooks = await response.json();
+        bookGrid.innerHTML = "<div class='loading'>Search for a book by title or author!</div>";
+    } catch (e) {
+        bookGrid.innerHTML = "<div class='loading'>Failed to load database.</div>";
+    }
+}
+
+searchBar.oninput = () => {
+    const term = searchBar.value.toLowerCase().trim();
+    if (term.length < 2) {
+        bookGrid.innerHTML = "<div class='loading'>Type to search...</div>";
+        return;
+    }
+
+    const results = allBooks.filter(b => 
+        (b.title || "").toLowerCase().includes(term) || 
+        (b.author || "").toLowerCase().includes(term)
+    ).slice(0, 100);
+
+    renderResults(results);
+};
+
+function renderResults(results) {
+    if (results.length === 0) {
+        bookGrid.innerHTML = "<div class='loading'>No matches found.</div>";
+        return;
+    }
+    bookGrid.innerHTML = "";
+    results.forEach(book => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        
+        let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
+        const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
+        if (isbnMatch && isbnMatch[1]) {
+            directLink = `https://books.google.com/books?vid=ISBN${isbnMatch[1]}`;
+        }
+        card.onclick = () => window.open(directLink, '_blank');
+
+        const authorDisplay = (!book.author || book.author.toLowerCase().includes("unknown")) 
+            ? '<span style="color: var(--primary); font-weight: 600;">🔍 View on Google Books</span>' 
+            : book.author;
+
+        card.innerHTML = `
+            <img src="${book.cover || 'https://via.placeholder.com/200x300'}" alt="${book.title}">
+            <div class="book-info">
+                <h4>${book.title}</h4>
+                <p>${authorDisplay}</p>
             </div>
-            <div style="display: flex; gap: 5px; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 10px; align-items: center;">
-                <label class="sync-label">✨ Sync Goodreads</label>
-            </div>
-        </nav>
-        <h1>📚 KidReads MAX</h1>
-        <div class="search-container">
-            <input type="text" id="searchBar" placeholder="Search title, author, or series...">
-            <select id="ageFilter">
-                <option value="all">All Ages</option>
-                <option value="1-4">Ages 1-4</option>
-                <option value="5-8">Ages 5-8</option>
-                <option value="9-12">Ages 9-12</option>
-                <option value="13+">Teens 13+</option>
-            </select>
-        </div>
-    </header>
-    <main id="bookGrid"></main>
-
-    <script>
-        let allBooks = [];
-        let results = [];
-        let shown = 0;
-        const grid = document.getElementById('bookGrid');
-
-        async function init() {
-            grid.innerHTML = '<div class="status-msg">Loading Library... 🪄</div>';
-            try {
-                const res = await fetch('mega_14k_kids.json');
-                allBooks = await res.json();
-                grid.innerHTML = '<div class="status-msg">Type above to search 4,600+ books!</div>';
-            } catch (e) { grid.innerHTML = '<div class="status-msg">⚠️ Database Error</div>'; }
-        }
-
-        function performSearch() {
-            const term = document.getElementById('searchBar').value.toLowerCase().trim();
-            const age = document.getElementById('ageFilter').value;
-            if (term.length < 2) { grid.innerHTML = '<div class="status-msg">Type to search...</div>'; return; }
-            const ageMap = { "1-4": ["k", "pre-k", "picture", "board"], "5-8": ["grade 1", "grade 2", "grade 3", "early", "k-2", "k-3"], "9-12": ["grade 4", "grade 5", "grade 6", "middle", "2-5", "4-7", "3-7"], "13+": ["grade 7", "grade 8", "ya", "teen", "5-12", "7-12"] };
-            results = allBooks.filter(b => {
-                const matchesTerm = (b.title || "").toLowerCase().includes(term) || (b.author || "").toLowerCase().includes(term);
-                if (!matchesTerm) return false;
-                if (age === "all") return true;
-                return ageMap[age].some(t => (b.reading_level || "").toLowerCase().includes(t));
-            });
-            shown = 0; grid.innerHTML = ""; renderBatch();
-        }
-
-        function renderBatch() {
-            const batch = results.slice(shown, shown + 80);
-            batch.forEach(book => {
-                const card = document.createElement('div');
-                card.className = 'book-card';
-                const authorDisplay = (book.author === "Unknown" || !book.author) ? "✨ Find on Google Books" : book.author;
-                card.innerHTML = `<img src="${book.cover}" loading="lazy"><div class="book-info"><h4>${book.title}</h4><p class="${(book.author === 'Unknown' || !book.author) ? 'find-link' : ''}">${authorDisplay}</p><div class="badge-container"><span class="badge genre-badge">${book.genre || 'Story'}</span><span class="badge level-badge">${book.reading_level || 'General'}</span></div></div>`;
-                card.onclick = () => {
-                    const query = encodeURIComponent(`${book.title} ${book.author !== 'Unknown' ? (book.author || '') : ''}`);
-                    window.open(`https://www.google.com/search?tbm=bks&q=${query}`, '_blank');
-                };
-                grid.appendChild(card);
-            });
-            shown += 80;
-            const old = document.querySelector('.load-more');
-            if (old) old.remove();
-            if (shown < results.length) {
-                const div = document.createElement('div');
-                div.className = 'load-more';
-                div.innerHTML = `<button class="btn-load" onclick="renderBatch()">Load More Results (+80)</button>`;
-                grid.appendChild(div);
-            }
-        }
-        document.getElementById('searchBar').oninput = performSearch;
-        document.getElementById('ageFilter').onchange = performSearch;
-        init();
-    </script>
+        `;
+        bookGrid.appendChild(card);
+    });
+}
+init();
+</script>
 </body>
 </html>
