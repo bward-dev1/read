@@ -6,75 +6,70 @@
     <title>KidReads | MAX Browse</title>
     <style>
         :root {
-            --primary: #4a90e2; --primary-dark: #357abd; --bg-body: #f0f2f5; 
-            --card-bg: #ffffff; --text-main: #2d3436; --text-muted: #636e72;
-            --glass: rgba(255, 255, 255, 0.15); --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg-body); color: var(--text-main); }
-        
-        header { 
-            padding: 60px 20px; text-align: center; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%); 
-            color: white; display: flex; flex-direction: column; align-items: center; gap: 30px; 
-        }
-        
-        /* --- ORIGINAL MAX H1 STYLE --- */
-        h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            margin: 0;
-            letter-spacing: -1.5px;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            --primary: #4a90e2;
+            --primary-dark: #357abd;
+            --bg-body: #f0f2f5; 
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+            --text-muted: #636e72;
+            --glass: rgba(255, 255, 255, 0.2);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        .app-toggle { 
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); }
+
+        header {
+            padding: 40px 20px; text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%);
+            color: white; display: flex; flex-direction: column; align-items: center; gap: 20px; 
+        }
+
+        .app-toggle {
             display: flex; align-items: center; gap: 10px; 
-            background: var(--glass); padding: 6px; border-radius: 50px; backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255,255,255,0.2); 
+            background: rgba(255, 255, 255, 0.15); padding: 5px; 
+            border-radius: 50px; backdrop-filter: blur(10px);
         }
-        
-        .toggle-btn, .sync-label { 
-            text-decoration: none; padding: 10px 22px; border-radius: 40px; 
-            font-size: 0.85rem; font-weight: 700; color: white; border: none; cursor: pointer; 
-            background: transparent; transition: all 0.3s ease; 
-        }
-        
-        .toggle-btn.active { background: white; color: var(--primary-dark); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .sync-label { background: rgba(46, 204, 113, 0.3); border: 1px solid rgba(255,255,255,0.2); }
-        .clear-btn { background: rgba(231, 76, 60, 0.3); border: none; color: white; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: none; margin-left: 5px; font-weight: bold; }
-        
-        .controls { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        select { 
-            padding: 14px 24px; border-radius: 16px; background: var(--glass); 
-            border: 1px solid rgba(255, 255, 255, 0.3); color: white; font-weight: 600; 
-            outline: none; cursor: pointer; transition: 0.3s;
-        }
-        select option { color: #333; }
 
-        #bookGrid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
-            gap: 35px; padding: 40px; max-width: 1400px; margin: 0 auto; 
+        .toggle-btn, .sync-label, .clear-btn {
+            text-decoration: none; padding: 8px 18px; border-radius: 40px;
+            font-size: 0.8rem; font-weight: 700; color: white; border: none; cursor: pointer;
         }
-        
-        .book-card { 
-            background: var(--card-bg); border-radius: 24px; box-shadow: var(--shadow); 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            overflow: hidden; cursor: pointer; display: flex; flex-direction: column; height: 100%;
+
+        .toggle-btn.active { background: white; color: var(--primary-dark); }
+        .sync-label { background: rgba(46, 204, 113, 0.3); border: 1px solid rgba(255,255,255,0.2); }
+        .clear-btn { background: rgba(231, 76, 60, 0.3); padding: 8px 12px; display: none; }
+
+        .controls { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+        select {
+            padding: 12px 20px; border-radius: 14px; background: var(--glass);
+            border: 1px solid rgba(255, 255, 255, 0.3); color: white; font-weight: 600;
+            outline: none;
         }
-        .book-card:hover { transform: translateY(-12px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #eee; }
-        .book-info { padding: 22px; flex-grow: 1; display: flex; flex-direction: column; }
-        .book-info h4 { margin: 0; font-size: 1.1rem; line-height: 1.4; min-height: 2.8rem; font-weight: 800; color: var(--text-main); }
-        .book-info p { margin: 8px 0 0 0; font-size: 0.9rem; color: var(--text-muted); }
-        .find-link { color: #4a90e2 !important; font-weight: bold; }
-        .badge-container { display: flex; gap: 6px; margin-top: auto; padding-top: 18px; flex-wrap: wrap; }
-        .badge { font-size: 0.65rem; font-weight: 800; padding: 5px 10px; border-radius: 8px; text-transform: uppercase; }
-        .genre-badge { background: #e3f2fd; color: #1976d2; }
-        .level-badge { background: #f1f8e9; color: #388e3c; }
-        .status-msg { grid-column: 1/-1; text-align: center; padding: 100px; font-size: 1.2rem; color: #636e72; }
+        select option { color: black; }
+
+        #bookGrid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px; padding: 40px; max-width: 1400px; margin: 0 auto;
+        }
+
+        .book-card {
+            background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow);
+            transition: transform 0.3s ease; overflow: hidden; cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .book-card:hover { transform: translateY(-10px); }
+        .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+        .book-info { padding: 20px; }
+        .book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); height: 2.8rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .book-info p { margin: 8px 0; font-size: 0.85rem; color: var(--text-muted); }
+
+        .badge-container { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+        .badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
+        .genre-badge { background: #e1f5fe; color: #0288d1; }
+        .level-badge { background: #f1f8e9; color: #558b2f; }
+
+        .loading { text-align: center; padding: 100px; font-size: 1.5rem; color: var(--primary-dark); grid-column: 1 / -1; }
     </style>
 </head>
 <body>
@@ -85,29 +80,36 @@
             <a href="index.html" class="toggle-btn active">MAX Browse</a>
             <a href="maxsearch.html" class="toggle-btn">Global Search</a>
         </div>
-        <div style="display: flex; gap: 5px; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 10px; align-items: center;">
+        <div style="display: flex; gap: 5px; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 10px;">
             <label for="gr-upload" class="sync-label" id="syncStatus">✨ Sync Goodreads</label>
-            <button id="clearSync" class="clear-btn" onclick="clearData()">❌</button>
+            <button id="clearSync" class="clear-btn">❌</button>
             <input type="file" id="gr-upload" accept=".csv" style="display:none">
         </div>
     </nav>
+    
     <h1>📚 KidReads MAX</h1>
+
     <div class="controls">
         <select id="ageSelect">
-            <option value="1-4">Ages 1-4</option>
-            <option value="5-8">Ages 5-8</option>
-            <option value="9-12" selected>Ages 9-12</option>
-            <option value="13+">Teens 13+</option>
+            <option value="1-4">Ages 1-4 (Early Years)</option>
+            <option value="5-8">Ages 5-8 (Early Reader)</option>
+            <option value="9-12" selected>Ages 9-12 (Middle Grade)</option>
+            <option value="13+">Teens 13+ (YA)</option>
         </select>
+
         <select id="genreSelect">
             <option value="">All Genres</option>
             <option value="Adventure">Adventure</option>
             <option value="Fantasy">Fantasy</option>
-            <option value="Graphic Novel">Graphic Novel</option>
             <option value="Mystery">Mystery</option>
             <option value="Humor">Humor</option>
-            <option value="Science">Science/STEM</option>
+            <option value="Graphic Novel">Graphic Novels</option>
+            <option value="Scary">Scary</option>
+            <option value="Science">Science & STEM</option>
             <option value="Animals">Animals</option>
+            <option value="Spanish">Spanish Books</option>
+            <option value="History">History & Bio</option>
+            <option value="SEL">Social Emotional</option>
         </select>
     </div>
 </header>
@@ -121,133 +123,144 @@ let personalISBNs = JSON.parse(localStorage.getItem('kidreads_isbns')) || [];
 let displayedCount = 0;
 const LOAD_BATCH = 40;
 
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
-async function init() {
-    const grid = document.getElementById('bookGrid');
-    grid.innerHTML = '<div class="status-msg">Summoning Library... 🪄</div>';
-    updateUIStatus();
-    try {
-        const res = await fetch('mega_14k_kids.json');
-        if (!res.ok) throw new Error("Could not find database.");
-        const raw = await res.json();
-        const seen = new Set();
-        allBooks = raw.filter(b => {
-            if (!b.title || !b.cover) return false;
-            const key = b.title.toLowerCase().trim();
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-        });
-        updateFilter();
-    } catch (e) {
-        grid.innerHTML = `<div class="status-msg">⚠️ <b>Database Error</b></div>`;
-    }
-}
+const bookGrid = document.getElementById('bookGrid');
+const ageSelect = document.getElementById('ageSelect');
+const genreSelect = document.getElementById('genreSelect');
+const grUpload = document.getElementById('gr-upload');
+const syncStatus = document.getElementById('syncStatus');
+const clearSync = document.getElementById('clearSync');
 
 function updateUIStatus() {
-    const status = document.getElementById('syncStatus');
-    const clear = document.getElementById('clearSync');
     if(personalISBNs.length > 0) {
-        status.innerText = "✅ Library Personalised!";
-        status.style.background = "#2ecc71";
-        clear.style.display = "block";
+        syncStatus.innerText = "✅ Library Personalized!";
+        syncStatus.style.background = "#2ecc71";
+        clearSync.style.display = "block";
     } else {
-        status.innerText = "✨ Sync Goodreads";
-        status.style.background = "rgba(46, 204, 113, 0.3)";
-        clear.style.display = "none";
+        syncStatus.innerText = "✨ Sync Goodreads";
+        syncStatus.style.background = "rgba(46, 204, 113, 0.3)";
+        clearSync.style.display = "none";
     }
 }
 
-document.getElementById('gr-upload').addEventListener('change', function(e) {
+grUpload.addEventListener('change', function(e) {
     const file = e.target.files[0];
-    if (!file) return;
     const reader = new FileReader();
     reader.onload = function(event) {
-        setTimeout(() => {
-            const matches = event.target.result.match(/(?:978|979)\d{10}/g) || [];
-            personalISBNs = [...new Set(matches)];
-            localStorage.setItem('kidreads_isbns', JSON.stringify(personalISBNs));
-            location.reload();
-        }, 100);
+        const text = event.target.result;
+        const rows = text.split('\n');
+        let extracted = [];
+        rows.forEach(row => {
+            const isbnMatch = row.match(/(?:978|979)\d{10}/);
+            if (isbnMatch) extracted.push(isbnMatch[0]);
+        });
+        personalISBNs = [...new Set(extracted)];
+        localStorage.setItem('kidreads_isbns', JSON.stringify(personalISBNs));
+        updateUIStatus();
+        updateFilter();
     };
     reader.readAsText(file);
 });
 
-function clearData() {
-    if(confirm("Reset personalized data?")) {
+clearSync.onclick = () => {
+    if(confirm("Unload your Goodreads data?")) {
+        personalISBNs = [];
         localStorage.removeItem('kidreads_isbns');
-        location.reload();
+        updateUIStatus();
+        updateFilter();
+    }
+};
+
+async function init() {
+    updateUIStatus();
+    try {
+        const response = await fetch('mega_14k_kids.json'); 
+        allBooks = await response.json();
+        updateFilter();
+    } catch (e) {
+        bookGrid.innerHTML = "<div class='loading'>Database Loading Error. Make sure mega_14k_kids.json is in your project folder!</div>";
     }
 }
 
 function updateFilter() {
-    const grid = document.getElementById('bookGrid');
-    grid.innerHTML = "";
+    bookGrid.innerHTML = "";
     displayedCount = 0;
-    const age = document.getElementById('ageSelect').value;
-    const genre = document.getElementById('genreSelect').value;
+    
+    const age = ageSelect.value;
+    const genre = genreSelect.value.toLowerCase();
+    
     const ageMap = {
-        "1-4": ["k", "pre-k", "picture", "board"],
-        "5-8": ["grade 1", "grade 2", "grade 3", "early", "k-2", "k-3"],
-        "9-12": ["grade 4", "grade 5", "grade 6", "middle", "2-5", "4-7", "3-7"],
-        "13+": ["grade 7", "grade 8", "ya", "teen", "5-12", "7-12"]
+        "1-4": ["pre-k", "picture book", "k", "board books"],
+        "5-8": ["grade 1", "grade 2", "grade 3", "early reader", "grades k-2", "grades 2-5"],
+        "9-12": ["grade 4", "grade 5", "grade 6", "middle grade", "grades 4-7", "grades 3-7"],
+        "13+": ["grade 7", "grade 8", "ya", "teen", "grades 5-12", "grades 7-12"]
     };
 
     filteredBooks = allBooks.filter(book => {
-        const matchesGenre = !genre || (book.genre || "").includes(genre);
+        const matchesGenre = genre === "" || (book.genre || "").toLowerCase().includes(genre);
         const level = (book.reading_level || "").toLowerCase();
-        return ageMap[age].some(term => level.includes(term));
+        const matchesAge = ageMap[age].some(term => level.includes(term)) || level === "general" || level === "middle grade";
+        
+        const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
+        const isPersonal = isbnMatch && personalISBNs.includes(isbnMatch[1]);
+
+        return (matchesGenre && matchesAge) || isPersonal;
     });
 
-    if (genre === "") { shuffleArray(filteredBooks); }
-
+    // Personal matches go to top
     filteredBooks.sort((a, b) => {
-        const aIsbn = (a.cover.match(/isbn\/(\d{13})/) || [])[1];
-        const bIsbn = (b.cover.match(/isbn\/(\d{13})/) || [])[1];
-        return (personalISBNs.includes(bIsbn) ? 1 : 0) - (personalISBNs.includes(aIsbn) ? 1 : 0);
+        const aISBN = (a.cover || "").match(/isbn\/(\d{13})/);
+        const bISBN = (b.cover || "").match(/isbn\/(\d{13})/);
+        const aFav = aISBN && personalISBNs.includes(aISBN[1]);
+        const bFav = bISBN && personalISBNs.includes(bISBN[1]);
+        return bFav - aFav;
     });
 
     loadMore();
 }
 
 function loadMore() {
-    const grid = document.getElementById('bookGrid');
     const nextBatch = filteredBooks.slice(displayedCount, displayedCount + LOAD_BATCH);
     nextBatch.forEach(book => {
-        const isbnMatch = (book.cover.match(/isbn\/(\d{13})/) || [])[1];
+        const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
         const isFav = isbnMatch && personalISBNs.includes(isbnMatch[1]);
         const card = document.createElement('div');
         card.className = 'book-card';
-        if (isFav) card.style.border = "3px solid #2ecc71";
-        const authorDisplay = (book.author === "Unknown" || !book.author) ? "✨ Find on Google Books" : book.author;
+        if (isFav) card.style.border = "2px solid #2ecc71";
+        
+        let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
+        if (isbnMatch && isbnMatch[1]) {
+            directLink = `https://books.google.com/books?vid=ISBN${isbnMatch[1]}`;
+        }
+        card.onclick = () => window.open(directLink, '_blank');
+        
+        const authorDisplay = (!book.author || book.author.toLowerCase().includes("unknown")) 
+            ? '<span style="color: var(--primary); font-weight: 600;">🔍 View on Google Books</span>' 
+            : book.author;
+
         card.innerHTML = `
-            <img src="${book.cover}" loading="lazy" alt="Cover">
+            <img src="${book.cover || 'https://via.placeholder.com/200x300'}" alt="${book.title}" loading="lazy">
             <div class="book-info">
                 <h4>${book.title} ${isFav ? '✨' : ''}</h4>
-                <p class="${(book.author === 'Unknown' || !book.author) ? 'find-link' : ''}">${authorDisplay}</p>
+                <p>${authorDisplay}</p>
                 <div class="badge-container">
                     <span class="badge genre-badge">${book.genre || 'Story'}</span>
                     <span class="badge level-badge">${book.reading_level || 'General'}</span>
                 </div>
-            </div>`;
-        card.onclick = () => {
-            const query = encodeURIComponent(`${book.title} ${book.author !== 'Unknown' ? (book.author || '') : ''}`);
-            window.open(`https://www.google.com/search?tbm=bks&q=${query}`, '_blank');
-        };
-        grid.appendChild(card);
+            </div>
+        `;
+        bookGrid.appendChild(card);
     });
     displayedCount += LOAD_BATCH;
 }
 
-window.onscroll = () => { if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) { if (displayedCount < filteredBooks.length) loadMore(); } };
-document.getElementById('ageSelect').onchange = updateFilter;
-document.getElementById('genreSelect').onchange = updateFilter;
+window.onscroll = () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
+        if (displayedCount < filteredBooks.length) loadMore();
+    }
+};
+
+ageSelect.onchange = updateFilter;
+genreSelect.onchange = updateFilter;
 init();
 </script>
 </body>
