@@ -59,7 +59,7 @@ header {
         <a href="maxsearch.html" class="toggle-btn active">Global Search</a>
     </div>
     <h1>🔍 Global Search</h1>
-    <input type="text" id="searchBar" placeholder="Search 13,000+ books...">
+    <input type="text" id="searchBar" placeholder="Search 1,900+ Scholastic books...">
 </header>
 
 <main id="bookGrid"></main>
@@ -72,7 +72,7 @@ const searchBar = document.getElementById('searchBar');
 async function init() {
     bookGrid.innerHTML = "<div class='loading'>Loading the Global Index... 📡</div>";
     try {
-        const response = await fetch('mega_10k_kids.json');
+        const response = await fetch('mega_11k_kids.json'); 
         allBooks = await response.json();
         bookGrid.innerHTML = "<div class='loading'>Type above to find a book!</div>";
     } catch (e) {
@@ -104,11 +104,26 @@ function renderResults(results) {
     results.forEach(book => {
         const card = document.createElement('div');
         card.className = 'book-card';
+        
+        // Google Books exact ISBN linking
+        let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
+        const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
+        if (isbnMatch && isbnMatch[1]) {
+            directLink = `https://books.google.com/books?vid=ISBN${isbnMatch[1]}`;
+        }
+        card.onclick = () => window.open(directLink, '_blank');
+
+        // Change Unknown to a clickable prompt
+        let displayAuthor = book.author;
+        if (!displayAuthor || displayAuthor.toLowerCase().includes("unknown")) {
+            displayAuthor = '<span style="color: var(--primary); font-weight: 600;">🔍 Find Author on Google</span>';
+        }
+
         card.innerHTML = `
             <img src="${book.cover || 'https://via.placeholder.com/200x300'}" alt="${book.title}">
             <div class="book-info">
                 <h4>${book.title}</h4>
-                <p>${book.author}</p>
+                <p style="margin: 5px 0; font-size: 0.85rem; color: var(--text-muted);">${displayAuthor}</p>
             </div>
         `;
         bookGrid.appendChild(card);
