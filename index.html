@@ -4,292 +4,70 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KidReads | MAX Browse</title>
-
 <style>
-:root {
-    --primary: #4a90e2;
-    --primary-dark: #357abd;
-    --bg-body: #f0f2f5; 
-    --card-bg: #ffffff;
-    --text-main: #2d3436;
-    --text-muted: #636e72;
-    --glass: rgba(255, 255, 255, 0.2);
-    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
+    :root {
+        --primary: #4a90e2; --primary-dark: #357abd; --bg-body: #f0f2f5; 
+        --card-bg: #ffffff; --text-main: #2d3436; --text-muted: #636e72;
+        --glass: rgba(255, 255, 255, 0.15); --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); }
+    
+    header {
+        padding: 50px 20px; text-align: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%);
+        color: white; display: flex; flex-direction: column; align-items: center; gap: 25px; 
+    }
+    
+    .app-toggle {
+        display: flex; align-items: center; gap: 10px; 
+        background: var(--glass); padding: 6px; border-radius: 50px; backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .toggle-btn, .sync-label, .clear-btn {
+        text-decoration: none; padding: 10px 22px; border-radius: 40px;
+        font-size: 0.85rem; font-weight: 700; color: white; border: none; cursor: pointer;
+        background: transparent; transition: all 0.3s ease;
+    }
+    
+    .toggle-btn.active { background: white; color: var(--primary-dark); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .sync-label { background: rgba(46, 204, 113, 0.3); border: 1px solid rgba(255,255,255,0.2); }
+    .sync-label:hover { background: rgba(46, 204, 113, 0.5); transform: scale(1.02); }
+    
+    .controls { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+    
+    select {
+        padding: 14px 24px; border-radius: 16px; background: var(--glass);
+        border: 1px solid rgba(255, 255, 255, 0.3); color: white; font-weight: 600; 
+        outline: none; cursor: pointer; transition: all 0.3s ease;
+    }
+    select:hover { background: rgba(255,255,255,0.25); }
+    select option { color: #333; }
 
-body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); }
+    #bookGrid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 35px; padding: 40px; max-width: 1400px; margin: 0 auto;
+    }
+    
+    .book-card {
+        background: var(--card-bg); border-radius: 24px; box-shadow: var(--shadow);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        overflow: hidden; cursor: pointer; display: flex; flex-direction: column;
+    }
+    .book-card:hover { transform: translateY(-12px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+    .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-bottom: 1px solid #eee; }
+    
+    .book-info { padding: 22px; flex-grow: 1; display: flex; flex-direction: column; }
+    .book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); min-height: 2.8rem; line-height: 1.4; font-weight: 800; }
+    .book-info p { margin: 8px 0 0 0; font-size: 0.9rem; color: var(--text-muted); }
+    .find-link { color: #4a90e2 !important; font-weight: bold; }
 
-header {
-    padding: 40px 20px; text-align: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%);
-    color: white; display: flex; flex-direction: column; align-items: center; gap: 20px; 
-}
-
-.app-toggle {
-    display: flex; align-items: center; gap: 10px; 
-    background: rgba(255, 255, 255, 0.15); padding: 5px; 
-    border-radius: 50px; backdrop-filter: blur(10px);
-}
-
-.toggle-btn, .sync-label, .clear-btn {
-    text-decoration: none; padding: 8px 18px; border-radius: 40px;
-    font-size: 0.8rem; font-weight: 700; color: white; border: none; cursor: pointer;
-}
-
-.toggle-btn.active { background: white; color: var(--primary-dark); }
-
-.sync-label { background: rgba(46, 204, 113, 0.3); border: 1px solid rgba(255,255,255,0.2); }
-.sync-label:hover { background: rgba(46, 204, 113, 0.5); }
-
-.clear-btn { background: rgba(231, 76, 60, 0.3); padding: 8px 12px; display: none; }
-
-.controls { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-
-select {
-    padding: 12px 20px; border-radius: 14px; background: var(--glass);
-    border: 1px solid rgba(255, 255, 255, 0.3); color: white; font-weight: 600;
-}
-
-#bookGrid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 30px; padding: 40px; max-width: 1400px; margin: 0 auto;
-}
-
-/* DESIGN UPDATE: Flex column ensures badges stay at bottom while card grows taller */
-.book-card {
-    background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow);
-    transition: transform 0.3s ease; overflow: hidden; cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-.book-card:hover { transform: translateY(-10px); }
-.book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
-
-.book-info { 
-    padding: 20px; 
-    display: flex; 
-    flex-direction: column; 
-    flex-grow: 1; 
-}
-
-/* DESIGN UPDATE: Title is now allowed to be taller, no overflow hidden */
-.book-info h4 { 
-    margin: 0; 
-    font-size: 1.1rem; 
-    color: var(--text-main); 
-    min-height: 2.8rem; 
-    line-height: 1.4; 
-    overflow: visible; 
-}
-
-.book-info p { margin: 8px 0; font-size: 0.85rem; color: var(--text-muted); }
-
-.badge-container { 
-    display: flex; 
-    gap: 5px; 
-    margin-top: auto; 
-    flex-wrap: wrap; 
-    padding-top: 10px;
-}
-.badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; }
-.genre-badge { background: #e1f5fe; color: #0288d1; }
-.level-badge { background: #f1f8e9; color: #558b2f; }
-
-.loading { text-align: center; padding: 100px; font-size: 1.5rem; color: var(--primary-dark); grid-column: 1 / -1; }
+    .badge-container { display: flex; gap: 6px; margin-top: auto; padding-top: 18px; flex-wrap: wrap; }
+    .badge { font-size: 0.65rem; font-weight: 800; padding: 5px 10px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .genre-badge { background: #e3f2fd; color: #1976d2; }
+    .level-badge { background: #f1f8e9; color: #388e3c; }
 </style>
 </head>
 <body>
-
-<header>
-    <nav class="app-toggle">
-        <div style="display: flex; gap: 5px;">
-            <a href="index.html" class="toggle-btn active">MAX Browse</a>
-            <a href="maxsearch.html" class="toggle-btn">Global Search</a>
-        </div>
-        <div style="display: flex; gap: 5px; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 10px;">
-            <label for="gr-upload" class="sync-label" id="syncStatus">✨ Sync Goodreads</label>
-            <button id="clearSync" class="clear-btn">❌</button>
-            <input type="file" id="gr-upload" accept=".csv" style="display:none">
-        </div>
-    </nav>
-    
-    <h1>📚 KidReads MAX</h1>
-
-    <div class="controls">
-        <select id="ageSelect">
-            <option value="1-4">Ages 1-4</option>
-            <option value="5-8">Ages 5-8</option>
-            <option value="9-12" selected>Ages 9-12</option>
-            <option value="13+">Teens 13+</option>
-        </select>
-
-        <select id="genreSelect">
-            <option value="">All Genres</option>
-            <option value="fantasy">Fantasy</option>
-            <option value="adventure">Adventure</option>
-            <option value="mystery">Mystery</option>
-            <option value="humor">Humor</option>
-            <option value="graphic novel">Graphic Novels</option>
-            <option value="scary">Scary</option>
-        </select>
-    </div>
-</header>
-
-<main id="bookGrid"></main>
-
-<script>
-let allBooks = [];
-let filteredBooks = [];
-let personalISBNs = JSON.parse(localStorage.getItem('kidreads_isbns')) || [];
-let displayedCount = 0;
-const LOAD_BATCH = 40;
-
-const bookGrid = document.getElementById('bookGrid');
-const ageSelect = document.getElementById('ageSelect');
-const genreSelect = document.getElementById('genreSelect');
-const grUpload = document.getElementById('gr-upload');
-const syncStatus = document.getElementById('syncStatus');
-const clearSync = document.getElementById('clearSync');
-
-function updateUIStatus() {
-    if(personalISBNs.length > 0) {
-        syncStatus.innerText = "✅ Library Personalised!";
-        syncStatus.style.background = "#2ecc71";
-        clearSync.style.display = "block";
-    } else {
-        syncStatus.innerText = "✨ Sync Goodreads";
-        syncStatus.style.background = "rgba(46, 204, 113, 0.3)";
-        clearSync.style.display = "none";
-    }
-}
-
-grUpload.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const text = event.target.result;
-        const rows = text.split('\n');
-        const redFlags = ["erotica", "mature", "adult", "thriller", "horror"];
-        let extracted = [];
-
-        rows.forEach(row => {
-            const lower = row.toLowerCase();
-            if (redFlags.some(flag => lower.includes(flag))) return;
-            const isbnMatch = row.match(/(?:978|979)\d{10}/);
-            if (isbnMatch) extracted.push(isbnMatch[0]);
-        });
-            
-        personalISBNs = [...new Set(extracted)];
-        localStorage.setItem('kidreads_isbns', JSON.stringify(personalISBNs));
-        updateUIStatus();
-        updateFilter();
-    };
-    reader.readAsText(file);
-});
-
-clearSync.onclick = () => {
-    if(confirm("Unload your Goodreads data?")) {
-        personalISBNs = [];
-        localStorage.removeItem('kidreads_isbns');
-        updateUIStatus();
-        updateFilter();
-    }
-};
-
-async function init() {
-    updateUIStatus();
-    try {
-        const response = await fetch('mega_12k_kids.json'); 
-        allBooks = await response.json();
-        updateFilter();
-    } catch (e) {
-        bookGrid.innerHTML = "<div class='loading'>Make sure mega_12k_kids.json is in your folder!</div>";
-    }
-}
-
-function updateFilter() {
-    bookGrid.innerHTML = "";
-    displayedCount = 0;
-    
-    const age = ageSelect.value;
-    const genre = genreSelect.value.toLowerCase();
-    const ageMap = {
-        "1-4": ["pre-k", "picture book", "k", "grade k-2"],
-        "5-8": ["grade 1", "grade 2", "grade 3", "early reader", "grades k-2", "grades 2-5"],
-        "9-12": ["grade 4", "grade 5", "grade 6", "middle grade", "grades 4-7", "grades 3-7"],
-        "13+": ["grade 7", "grade 8", "ya", "teen", "grades 5-12", "grades 7-12"]
-    };
-
-    filteredBooks = allBooks.filter(book => {
-        const matchesGenre = genre === "" || (book.genre || "").toLowerCase().includes(genre);
-        const level = (book.reading_level || "").toLowerCase();
-        const matchesAge = ageMap[age].some(term => level.includes(term)) || level === "general" || level === "middle grade";
-        
-        const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
-        const bookIsbn = isbnMatch ? isbnMatch[1] : null;
-        const isPersonal = bookIsbn && personalISBNs.includes(bookIsbn);
-
-        return (matchesGenre && matchesAge) || isPersonal;
-    });
-
-    filteredBooks.sort((a, b) => {
-        const aMatch = (a.cover || "").match(/isbn\/(\d{13})/);
-        const bMatch = (b.cover || "").match(/isbn\/(\d{13})/);
-        const aFav = aMatch && personalISBNs.includes(aMatch[1]);
-        const bFav = bMatch && personalISBNs.includes(bMatch[1]);
-        return bFav - aFav;
-    });
-
-    loadMore();
-}
-
-function loadMore() {
-    const nextBatch = filteredBooks.slice(displayedCount, displayedCount + LOAD_BATCH);
-    nextBatch.forEach(book => {
-        const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
-        const isFav = isbnMatch && personalISBNs.includes(isbnMatch[1]);
-        
-        const card = document.createElement('div');
-        card.className = 'book-card';
-        if (isFav) card.style.border = "2px solid #2ecc71";
-        
-        let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
-        if (isbnMatch && isbnMatch[1]) {
-            directLink = `https://books.google.com/books?vid=ISBN${isbnMatch[1]}`;
-        }
-        card.onclick = () => window.open(directLink, '_blank');
-        
-        let displayAuthor = book.author;
-        if (!displayAuthor || displayAuthor.toLowerCase().includes("unknown")) {
-            displayAuthor = '<span style="color: var(--primary); font-weight: 600;">🔍 Find Author on Google</span>';
-        }
-
-        card.innerHTML = `
-            <img src="${book.cover || 'https://via.placeholder.com/200x300'}" alt="${book.title}">
-            <div class="book-info">
-                <h4>${book.title} ${isFav ? '✨' : ''}</h4>
-                <p>${displayAuthor}</p>
-                <div class="badge-container">
-                    <span class="badge genre-badge">${book.genre || 'Story'}</span>
-                    <span class="badge level-badge">${book.reading_level || 'General'}</span>
-                </div>
-            </div>
-        `;
-        bookGrid.appendChild(card);
-    });
-    displayedCount += LOAD_BATCH;
-}
-
-window.onscroll = () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-        if (displayedCount < filteredBooks.length) loadMore();
-    }
-};
-
-ageSelect.onchange = updateFilter;
-genreSelect.onchange = updateFilter;
-init();
-</script>
-</body>
+    </body>
 </html>
