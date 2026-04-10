@@ -10,7 +10,7 @@
             --card-bg: #ffffff; --text-main: #2d3436; --text-muted: #636e72;
             --glass: rgba(255, 255, 255, 0.15); --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
-        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); }
+        body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg-body); color: var(--text-main); }
         
         header { 
             padding: 50px 20px; text-align: center; 
@@ -32,6 +32,7 @@
         
         .toggle-btn.active { background: white; color: var(--primary-dark); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .sync-label { background: rgba(46, 204, 113, 0.3); border: 1px solid rgba(255,255,255,0.2); }
+        .sync-label:hover { background: rgba(46, 204, 113, 0.5); }
         .clear-btn { background: rgba(231, 76, 60, 0.3); border: none; color: white; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: none; margin-left: 5px; font-weight: bold; }
         
         .controls { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
@@ -40,7 +41,6 @@
             border: 1px solid rgba(255, 255, 255, 0.3); color: white; font-weight: 600; 
             outline: none; cursor: pointer; transition: 0.3s;
         }
-        select:hover { background: rgba(255,255,255,0.25); }
         select option { color: #333; }
 
         #bookGrid { 
@@ -54,10 +54,10 @@
             overflow: hidden; cursor: pointer; display: flex; flex-direction: column; height: 100%;
         }
         .book-card:hover { transform: translateY(-12px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+        .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #eee; }
         
         .book-info { padding: 22px; flex-grow: 1; display: flex; flex-direction: column; }
-        .book-info h4 { margin: 0; font-size: 1.1rem; line-height: 1.4; min-height: 2.8rem; font-weight: 800; }
+        .book-info h4 { margin: 0; font-size: 1.1rem; line-height: 1.4; min-height: 2.8rem; font-weight: 800; color: var(--text-main); }
         .book-info p { margin: 8px 0 0 0; font-size: 0.9rem; color: var(--text-muted); }
         .find-link { color: #4a90e2 !important; font-weight: bold; }
 
@@ -65,16 +65,20 @@
         .badge { font-size: 0.65rem; font-weight: 800; padding: 5px 10px; border-radius: 8px; text-transform: uppercase; }
         .genre-badge { background: #e3f2fd; color: #1976d2; }
         .level-badge { background: #f1f8e9; color: #388e3c; }
-        .error-msg { grid-column: 1/-1; text-align: center; padding: 100px; color: #e74c3c; font-weight: bold; }
+        
+        .status-msg { grid-column: 1/-1; text-align: center; padding: 100px; font-size: 1.2rem; color: #636e72; }
+        .error-msg { color: #e74c3c; background: #fff5f5; border: 2px dashed #fab1a0; border-radius: 20px; padding: 40px; }
     </style>
 </head>
 <body>
 
 <header>
     <nav class="app-toggle">
-        <a href="index.html" class="toggle-btn active">MAX Browse</a>
-        <a href="maxsearch.html" class="toggle-btn">Global Search</a>
-        <div style="border-left: 1px solid rgba(255,255,255,0.2); margin-left: 5px; padding-left: 10px; display: flex; align-items: center;">
+        <div style="display: flex; gap: 5px;">
+            <a href="index.html" class="toggle-btn active">MAX Browse</a>
+            <a href="maxsearch.html" class="toggle-btn">Global Search</a>
+        </div>
+        <div style="display: flex; gap: 5px; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 10px; align-items: center;">
             <label for="gr-upload" class="sync-label" id="syncStatus">✨ Sync Goodreads</label>
             <button id="clearSync" class="clear-btn" onclick="clearData()">❌</button>
             <input type="file" id="gr-upload" accept=".csv" style="display:none">
@@ -92,10 +96,11 @@
             <option value="">All Genres</option>
             <option value="Adventure">Adventure</option>
             <option value="Fantasy">Fantasy</option>
-            <option value="Graphic Novel">Graphic Novels</option>
+            <option value="Graphic Novel">Graphic Novel</option>
             <option value="Mystery">Mystery</option>
             <option value="Humor">Humor</option>
             <option value="Science">Science/STEM</option>
+            <option value="Animals">Animals</option>
         </select>
     </div>
 </header>
@@ -110,12 +115,15 @@ let displayedCount = 0;
 const LOAD_BATCH = 40;
 
 async function init() {
+    const grid = document.getElementById('bookGrid');
+    grid.innerHTML = '<div class="status-msg">Summoning Library... 🪄</div>';
     updateUIStatus();
+    
     try {
         const res = await fetch('mega_14k_kids.json');
-        if (!res.ok) throw new Error("Could not find mega_14k_kids.json");
-        const raw = await res.json();
+        if (!res.ok) throw new Error(`Could not find mega_14k_kids.json`);
         
+        const raw = await res.json();
         const seen = new Set();
         allBooks = raw.filter(b => {
             if (!b.title || !b.cover) return false;
@@ -127,7 +135,7 @@ async function init() {
         
         updateFilter();
     } catch (e) {
-        document.getElementById('bookGrid').innerHTML = `<div class="error-msg">⚠️ Error: ${e.message}<br>Make sure the file is uploaded to GitHub!</div>`;
+        grid.innerHTML = `<div class="status-msg error-msg">⚠️ <b>Database Error</b><br>${e.message}</div>`;
     }
 }
 
@@ -182,11 +190,11 @@ function updateFilter() {
     };
 
     filteredBooks = allBooks.filter(book => {
-        const matchesGenre = !genre || book.genre === genre;
+        const matchesGenre = !genre || (book.genre || "").includes(genre);
         const level = (book.reading_level || "").toLowerCase();
         const matchesAge = ageMap[age].some(term => level.includes(term));
-        const isbn = (book.cover.match(/isbn\/(\d{13})/) || [])[1];
-        const isFav = isbn && personalISBNs.includes(isbn);
+        const isbnMatch = (book.cover.match(/isbn\/(\d{13})/) || [])[1];
+        const isFav = isbnMatch && personalISBNs.includes(isbnMatch[1]);
         return (matchesGenre && matchesAge) || isFav;
     });
 
@@ -196,24 +204,29 @@ function updateFilter() {
         return (personalISBNs.includes(bIsbn) ? 1 : 0) - (personalISBNs.includes(aIsbn) ? 1 : 0);
     });
 
-    loadMore();
+    if (filteredBooks.length === 0) {
+        grid.innerHTML = '<div class="status-msg">No books found for this selection.</div>';
+    } else {
+        loadMore();
+    }
 }
 
 function loadMore() {
     const grid = document.getElementById('bookGrid');
     const nextBatch = filteredBooks.slice(displayedCount, displayedCount + LOAD_BATCH);
     nextBatch.forEach(book => {
-        const isbn = (book.cover.match(/isbn\/(\d{13})/) || [])[1];
-        const isFav = isbn && personalISBNs.includes(isbn);
+        const isbnMatch = (book.cover.match(/isbn\/(\d{13})/) || [])[1];
+        const isFav = isbnMatch && personalISBNs.includes(isbnMatch[1]);
         const card = document.createElement('div');
         card.className = 'book-card';
         if (isFav) card.style.border = "3px solid #2ecc71";
         
+        const authorDisplay = (book.author === "Unknown") ? "✨ Find on Google Books" : book.author;
         card.innerHTML = `
-            <img src="${book.cover}" alt="Cover">
+            <img src="${book.cover}" loading="lazy" alt="Cover">
             <div class="book-info">
                 <h4>${book.title} ${isFav ? '✨' : ''}</h4>
-                <p class="${book.author === 'Unknown' ? 'find-link' : ''}">${book.author === 'Unknown' ? '✨ Find on Google Books' : book.author}</p>
+                <p class="${book.author === 'Unknown' ? 'find-link' : ''}">${authorDisplay}</p>
                 <div class="badge-container">
                     <span class="badge genre-badge">${book.genre}</span>
                     <span class="badge level-badge">${book.reading_level}</span>
