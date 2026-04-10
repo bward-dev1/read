@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidReads V2.0 | Search Terminal</title>
+    <style>
+        :root { --neon-blue: #00d2ff; --dark-core: #0f172a; }
+        body { margin: 0; font-family: 'JetBrains Mono', monospace; background: var(--dark-core); color: #f8fafc; }
+        
+        header { padding: 60px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        
+        .nav-system { display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; }
+        .nav-link { text-decoration: none; color: #94a3b8; font-size: 0.9rem; padding: 10px 20px; }
+        .nav-link.active { color: var(--neon-blue); border-bottom: 2px solid var(--neon-blue); }
+
+        .search-container { position: relative; max-width: 600px; margin: 0 auto; }
+        input {
+            width: 100%; padding: 15px 30px; border-radius: 4px;
+            background: #1e293b; border: 1px solid #334155; color: var(--neon-blue);
+            font-size: 1.2rem; font-family: inherit; outline: none; box-sizing: border-box;
+        }
+        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); }
+
+        #results { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding: 40px; }
+        .res-card { background: #1e293b; padding: 10px; border-radius: 4px; cursor: pointer; text-align: center; border: 1px solid transparent; transition: 0.2s; }
+        .res-card:hover { border-color: var(--neon-blue); background: #0f172a; }
+        .res-card img { width: 100%; border-radius: 2px; }
+        .res-card h5 { font-size: 0.8rem; margin: 10px 0 0; color: #cbd5e1; }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav class="nav-system">
+        <a href="devmax.html" class="nav-link">//BROWSE_LIBRARY</a>
+        <a href="searchtheworld.html" class="nav-link active">//GLOBAL_QUERY</a>
+    </nav>
+    <div class="search-container">
+        <input type="text" id="term" placeholder="system.execute_search(query)...">
+    </div>
+</header>
+
+<div id="results"></div>
+
+<script>
+let data = [];
+async function init() {
+    const res = await fetch('mega.json');
+    data = await res.json();
+}
+
+document.getElementById('term').oninput = (e) => {
+    const val = e.target.value.toLowerCase();
+    const box = document.getElementById('results');
+    box.innerHTML = '';
+    if (val.length < 2) return;
+
+    data.filter(b => b.title.toLowerCase().includes(val)).slice(0, 40).forEach(b => {
+        const d = document.createElement('div');
+        d.className = 'res-card';
+        d.onclick = () => window.open(`https://books.google.com/books?q=${encodeURIComponent(b.title)}`, '_blank');
+        d.innerHTML = `<img src="${b.cover}"><h5>${b.title}</h5>`;
+        box.appendChild(d);
+    });
+};
+init();
+</script>
+</body>
+</html>
