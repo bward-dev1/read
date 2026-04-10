@@ -64,7 +64,7 @@ select {
 .book-info { padding: 20px; }
 .book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); height: 2.8rem; overflow: hidden; }
 
-.badge-container { display: flex; gap: 5px; margin-top: 10px; }
+.badge-container { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
 .badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; }
 .genre-badge { background: #e1f5fe; color: #0288d1; }
 .level-badge { background: #f1f8e9; color: #558b2f; }
@@ -125,6 +125,12 @@ const grUpload = document.getElementById('gr-upload');
 const syncStatus = document.getElementById('syncStatus');
 const clearSync = document.getElementById('clearSync');
 
+// Helper to extract ISBN from Scholastic cover URL
+function extractISBN(coverUrl) {
+    const match = (coverUrl || "").match(/isbn\/(\d{13})/);
+    return match ? match[1] : null;
+}
+
 // --- 1. GOODREADS SYNC LOGIC ---
 function updateUIStatus() {
     if(personalISBNs.length > 0) {
@@ -175,11 +181,11 @@ clearSync.onclick = () => {
 async function init() {
     updateUIStatus();
     try {
-        const response = await fetch('mega_11k_kids.json'); 
+        const response = await fetch('mega_12k_kids.json'); 
         allBooks = await response.json();
         updateFilter();
     } catch (e) {
-        bookGrid.innerHTML = "<div class='loading'>Make sure mega_11k_kids.json is in your folder!</div>";
+        bookGrid.innerHTML = "<div class='loading'>Make sure mega_12k_kids.json is in your folder!</div>";
     }
 }
 
@@ -205,15 +211,18 @@ function updateFilter() {
         const matchesAge = ageMap[age].some(term => level.includes(term)) || level === "general" || level === "middle grade";
         
         // Goodreads check
-        const isPersonal = book.isbn && book.isbn.some(i => personalISBNs.includes(i));
+        const bookIsbn = extractISBN(book.cover);
+        const isPersonal = bookIsbn && personalISBNs.includes(bookIsbn);
 
         return (matchesGenre && matchesAge) || isPersonal;
     });
 
     // Sort: Personal Books always go to the TOP
     filteredBooks.sort((a, b) => {
-        const aFav = a.isbn && a.isbn.some(i => personalISBNs.includes(i));
-        const bFav = b.isbn && b.isbn.some(i => personalISBNs.includes(i));
+        const aIsbn = extractISBN(a.cover);
+        const bIsbn = extractISBN(b.cover);
+        const aFav = aIsbn && personalISBNs.includes(aIsbn);
+        const bFav = bIsbn && personalISBNs.includes(bIsbn);
         return bFav - aFav;
     });
 
@@ -223,16 +232,17 @@ function updateFilter() {
 function loadMore() {
     const nextBatch = filteredBooks.slice(displayedCount, displayedCount + LOAD_BATCH);
     nextBatch.forEach(book => {
-        const isFav = book.isbn && book.isbn.some(i => personalISBNs.includes(i));
+        const bookIsbn = extractISBN(book.cover);
+        const isFav = bookIsbn && personalISBNs.includes(bookIsbn);
+        
         const card = document.createElement('div');
         card.className = 'book-card';
         if (isFav) card.style.border = "2px solid #2ecc71";
         
         // Google Books exact ISBN linking
         let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
-        const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
-        if (isbnMatch && isbnMatch[1]) {
-            directLink = `https://books.google.com/books?vid=ISBN${isbnMatch[1]}`;
+        if (bookIsbn) {
+            directLink = `https://books.google.com/books?vid=ISBN${bookIsbn}`;
         }
         card.onclick = () => window.open(directLink, '_blank');
         
