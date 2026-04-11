@@ -3,182 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KidReads V2.0 | DEV-CORE</title>
+    <title>KidReads V2.0 | DEV-BROWSE</title>
     <style>
-        :root {
-            --neon-blue: #00d2ff;
-            --neon-purple: #9d50bb;
-            --dark-core: #0f172a;
-            --glass: rgba(255, 255, 255, 0.03);
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-        }
-
-        body { 
-            margin: 0; 
-            font-family: 'JetBrains Mono', 'Fira Code', monospace; 
-            background-color: var(--dark-core); 
-            color: var(--text-main);
-        }
-
-        /* --- KIDREADS V2.0 HEADER --- */
-        header {
-            padding: 60px 20px;
-            background: radial-gradient(circle at top right, #1e293b, #0f172a);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::before {
-            content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
-        }
-
-        .dev-badge {
-            font-size: 0.7rem;
-            background: rgba(0, 210, 255, 0.1);
-            color: var(--neon-blue);
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--neon-blue);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-        }
-
-        .v2-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin: 0;
-            background: linear-gradient(to bottom, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .v2-title span { color: var(--neon-blue); -webkit-text-fill-color: var(--neon-blue); }
-
-        .nav-system {
-            display: flex; gap: 20px; margin-top: 30px;
-        }
-
-        .nav-link {
-            text-decoration: none; color: var(--text-dim);
-            font-size: 0.9rem; font-weight: 600;
-            padding: 10px 25px; border-radius: 8px;
-            transition: 0.3s; border: 1px solid transparent;
-        }
-
-        .nav-link:hover { color: white; background: var(--glass); border-color: rgba(255,255,255,0.1); }
-        .nav-link.active { color: var(--neon-blue); border-color: var(--neon-blue); background: rgba(0,210,255,0.05); }
-
-        /* --- CONTROLS --- */
-        .dev-controls {
-            display: flex; gap: 10px; margin-top: 25px;
-        }
-
-        select {
-            background: #1e293b; color: white; border: 1px solid #334155;
-            padding: 10px 15px; border-radius: 6px; outline: none; font-family: inherit;
-        }
-
-        /* --- GRID --- */
-        #bookGrid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 30px; padding: 50px; max-width: 1400px; margin: 0 auto;
-        }
-
-        .book-card {
-            background: #1e293b; border-radius: 12px; overflow: hidden;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255,255,255,0.05);
-            position: relative;
-        }
-
-        .book-card:hover { transform: translateY(-10px) scale(1.02); border-color: var(--neon-blue); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-
-        .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; filter: grayscale(20%); transition: 0.3s; }
-        .book-card:hover img { filter: grayscale(0%); }
-
-        .book-info { padding: 20px; }
-        .book-info h4 { margin: 0; font-size: 0.95rem; color: #f1f5f9; height: 2.6rem; overflow: hidden; }
-        .book-info p { margin: 10px 0; font-size: 0.75rem; color: var(--neon-blue); font-weight: bold; }
+        :root { --neon-blue: #00d2ff; --neon-green: #2ecc71; --dark-core: #0f172a; }
+        body { margin: 0; font-family: 'JetBrains Mono', monospace; background: var(--dark-core); color: #f8fafc; overflow-x: hidden; }
         
-        .type-label { font-size: 0.6rem; color: #475569; border: 1px solid #334155; padding: 2px 6px; border-radius: 4px; }
+        header { padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .dev-badge { font-size: 0.7rem; color: var(--neon-blue); letter-spacing: 2px; margin-bottom: 20px; opacity: 0.8; }
+        
+        .nav-system { display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; }
+        .nav-link { text-decoration: none; color: #475569; font-size: 0.9rem; padding: 10px 20px; transition: 0.3s; }
+        .nav-link.active { color: var(--neon-blue); border-bottom: 2px solid var(--neon-blue); }
+
+        .dev-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+        select, .sync-label {
+            background: #1e293b; color: var(--neon-blue); border: 1px solid #334155;
+            padding: 8px 15px; border-radius: 4px; font-family: inherit; font-size: 0.8rem; outline: none; cursor: pointer;
+        }
+        .sync-label { color: var(--neon-green); border-color: var(--neon-green); }
+
+        #status-feed { font-size: 0.7rem; color: #475569; margin-top: 15px; letter-spacing: 1px; }
+
+        #bookGrid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 30px; padding: 40px; max-width: 1400px; margin: 0 auto; 
+        }
+
+        .book-card { 
+            background: #1e293b; padding: 12px; border-radius: 4px; cursor: pointer; 
+            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
+            display: flex; flex-direction: column; position: relative;
+        }
+        .book-card:hover { border-color: var(--neon-blue); transform: translateY(-5px); }
+
+        /* The Green LED Backlight Effect */
+        .book-card.personal-match {
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+            border-color: var(--neon-green);
+        }
+
+        .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 2px; margin-bottom: 12px; }
+        .book-card h5 { font-size: 0.85rem; margin: 0; color: #cbd5e1; height: 2.5rem; overflow: hidden; line-height: 1.2; }
+        .book-card p { font-size: 0.7rem; color: var(--neon-blue); margin: 8px 0; font-weight: bold; }
+        
+        .genre-tag { 
+            font-size: 0.6rem; color: #64748b; border: 1px solid #334155; 
+            padding: 2px 6px; border-radius: 3px; align-self: flex-start; text-transform: uppercase;
+        }
+
+        .loading { grid-column: 1/-1; text-align: center; padding: 100px; color: var(--neon-blue); letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="dev-badge">Dev-Build v2.0.4 - Purified</div>
-    <h1 class="v2-title">KidReads <span>MAX</span></h1>
-    
+    <div class="dev-badge">DEV-BUILD V4.04 - PURIFIED</div>
     <nav class="nav-system">
         <a href="devmax.html" class="nav-link active">//BROWSE_LIBRARY</a>
         <a href="searchtheworld.html" class="nav-link">//GLOBAL_QUERY</a>
     </nav>
-
     <div class="dev-controls">
         <select id="ageFilter">
-            <option value="all">ALL_AGES</option>
-            <option value="10-13" selected>MIDDLE_GRADE</option>
-            <option value="14+">YA_DEEP_LEVEL</option>
+            <option value="all">EXEC_ALL_LEVELS</option>
+            <option value="1-4">AGE_01-04</option>
+            <option value="5-8" selected>AGE_05-08</option>
+            <option value="9-12">AGE_09-12</option>
+            <option value="13+">AGE_13+_YA</option>
         </select>
         <select id="genreFilter">
-            <option value="all">ALL_GENRES</option>
+            <option value="">ALL_GENRES</option>
             <option value="Adventure">ADVENTURE</option>
+            <option value="Fantasy">FANTASY</option>
+            <option value="Mystery">MYSTERY</option>
+            <option value="Humor">HUMOR</option>
+            <option value="Graphic Novel">GRAPHIC_NOVEL</option>
+            <option value="Scary">SCARY</option>
             <option value="Science">STEM_DATA</option>
+            <option value="Animals">ANIMALS</option>
+            <option value="Spanish">SPANISH_LANG</option>
+            <option value="History">HISTORY_BIO</option>
+            <option value="SEL">SOCIAL_EMOTIONAL</option>
         </select>
+        <label for="csv-up" class="sync-label" id="syncLabel">SYNC_GOODREADS</label>
+        <input type="file" id="csv-up" accept=".csv" style="display:none">
     </div>
+    <div id="status-feed">SYSTEM_IDLE...</div>
 </header>
 
 <main id="bookGrid"></main>
 
 <script>
 let allBooks = [];
+let personalISBNs = JSON.parse(localStorage.getItem('kr_dev_isbns')) || [];
+
 async function init() {
+    const grid = document.getElementById('bookGrid');
+    const feed = document.getElementById('status-feed');
+    grid.innerHTML = '<div class="loading">INITIATING_CORE_SYNC...</div>';
     try {
-        const res = await fetch('mega.json');
+        const res = await fetch('mega_14k_kids.json');
         allBooks = await res.json();
+        feed.innerText = `DATABASE_LOADED: ${allBooks.length} RECORDS`;
         render();
-    } catch(e) { document.getElementById('bookGrid').innerHTML = "DB_SYNC_ERROR: mega.json not found."; }
+    } catch(e) { grid.innerHTML = '<div class="loading">SYNC_ERROR: DATABASE_NOT_FOUND</div>'; }
 }
+
+document.getElementById('csv-up').onchange = (e) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const matches = event.target.result.match(/(?:978|979)\d{10}/g);
+        if (matches) {
+            personalISBNs = [...new Set(matches)];
+            localStorage.setItem('kr_dev_isbns', JSON.stringify(personalISBNs));
+            document.getElementById('syncLabel').innerText = "SYNC_SUCCESS";
+            render();
+        }
+    };
+    reader.readAsText(e.target.files[0]);
+};
 
 function render() {
     const grid = document.getElementById('bookGrid');
     grid.innerHTML = '';
     const age = document.getElementById('ageFilter').value;
-    
-    // Quick filter logic for middle grade
-    const filtered = allBooks.filter(b => {
-        if (age === '10-13') return (b.reading_level || '').includes('4') || (b.reading_level || '').includes('Middle');
-        return true;
-    }).slice(0, 100);
+    const genre = document.getElementById('genreFilter').value.toLowerCase();
 
-    filtered.forEach(book => {
+    const ageMap = {
+        "1-4": ["pre-k", "picture book", "k", "board books"],
+        "5-8": ["grade 1", "grade 2", "grade 3", "early reader", "grades k-2"],
+        "9-12": ["grade 4", "grade 5", "grade 6", "middle grade", "grades 4-7"],
+        "13+": ["grade 7", "grade 8", "ya", "teen", "grades 7-12"]
+    };
+
+    let filtered = allBooks.filter(b => {
+        const matchesGenre = !genre || (b.genre || "").toLowerCase().includes(genre);
+        const lvl = (b.reading_level || "").toLowerCase();
+        const matchesAge = age === 'all' || (ageMap[age] && ageMap[age].some(t => lvl.includes(t)));
+        return matchesGenre && matchesAge;
+    });
+
+    // Priority Sorting: Goodreads matches to the top
+    filtered.sort((a, b) => {
+        const aISBN = (a.cover || "").match(/isbn\/(\d{13})/);
+        const bISBN = (b.cover || "").match(/isbn\/(\d{13})/);
+        const aFav = aISBN && personalISBNs.includes(aISBN[1]);
+        const bFav = bISBN && personalISBNs.includes(bISBN[1]);
+        return bFav - aFav;
+    });
+
+    filtered.slice(0, 100).forEach(book => {
+        const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
+        const isFav = isbnMatch && personalISBNs.includes(isbnMatch[1]);
         const card = document.createElement('div');
-        card.className = 'book-card';
-        card.onclick = () => {
-            const isbn = (book.cover || '').match(/isbn\/(\d{13})/);
-            window.open(isbn ? `https://books.google.com/books?vid=ISBN${isbn[1]}` : `https://books.google.com/books?q=${encodeURIComponent(book.title)}`, '_blank');
-        };
+        card.className = `book-card ${isFav ? 'personal-match' : ''}`;
+        
+        let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
+        if (isbnMatch) directLink = `https://books.google.com/books?vid=ISBN${isbnMatch[1]}`;
+        card.onclick = () => window.open(directLink, '_blank');
+
         card.innerHTML = `
-            <img src="${book.cover}">
-            <div class="book-info">
-                <h4>${book.title}</h4>
-                <p>${book.author === 'Unknown' ? 'AUTHOR_MISSING' : book.author.toUpperCase()}</p>
-                <span class="type-label">${book.genre || 'OBJECT'}</span>
-            </div>
+            <img src="${book.cover}" loading="lazy">
+            <h5>${book.title} ${isFav ? '✨' : ''}</h5>
+            <p>${(book.author || 'UNKNOWN').toUpperCase()}</p>
+            <span class="genre-tag">${book.genre || 'DATA'}</span>
         `;
         grid.appendChild(card);
     });
 }
 
 document.getElementById('ageFilter').onchange = render;
+document.getElementById('genreFilter').onchange = render;
 init();
 </script>
 </body>
