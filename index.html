@@ -19,7 +19,7 @@
 
         body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg-body); color: var(--text-main); }
 
-        /* THE FAMOUS SPINNING THINGEE HEADER */
+        /* HEADER */
         header {
             padding: 40px 20px; text-align: center;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%);
@@ -65,7 +65,7 @@
         .level-badge { background: #f1f8e9; color: #558b2f; }
         .loading { grid-column: 1 / -1; text-align: center; padding: 100px; font-size: 1.4rem; color: var(--primary-dark); }
 
-        /* --- NEW: MODAL STYLES --- */
+        /* MODAL STYLES */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
@@ -222,12 +222,12 @@ document.getElementById('clearSync').onclick = () => {
 async function init() {
     updateUIStatus();
     try {
-        // Pointing to the new deep scrape JSON!
-        const response = await fetch('mega_summary_kids.json'); 
+        // Pointing to the 15k kids library!
+        const response = await fetch('mega_15k_kids.json'); 
         allBooks = await response.json();
         updateFilter();
     } catch (e) {
-        bookGrid.innerHTML = "<div class='loading'>Database Loading Error. Is mega_summary_kids.json in the folder?</div>";
+        bookGrid.innerHTML = "<div class='loading'>Database Loading Error. Is mega_15k_kids.json in the folder?</div>";
     }
 }
 
@@ -271,7 +271,6 @@ function showModal(book) {
     mGenre.innerText = book.genre || 'Story';
     mLevel.innerText = book.reading_level || 'General';
 
-    // Smart Link Generation
     let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
     const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
     if (isbnMatch && isbnMatch[1]) {
@@ -280,11 +279,10 @@ function showModal(book) {
     mLink.href = directLink;
 
     modal.classList.add('active');
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    document.body.style.overflow = 'hidden'; 
 }
 
 function closeModal(e) {
-    // Only close if clicking the background or the X button
     if (e.target === modal || e.target.classList.contains('modal-close')) {
         modal.classList.remove('active');
         document.body.style.overflow = 'auto';
@@ -299,7 +297,6 @@ function loadMore() {
         card.className = 'book-card';
         if (isFav) card.style.border = "2px solid #2ecc71";
         
-        // NEW: Open modal instead of opening link directly
         card.onclick = () => showModal(book);
         
         card.innerHTML = `
