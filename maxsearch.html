@@ -143,11 +143,12 @@ const mLink = document.getElementById('mLink');
 async function init() {
     bookGrid.innerHTML = "<div class='loading'>Syncing Local Database... 📡</div>";
     try {
-        const response = await fetch('mega_summary_kids.json'); 
+        // Updated to use the 15k kids library
+        const response = await fetch('mega_15k_kids.json'); 
         allBooks = await response.json();
         bookGrid.innerHTML = "<div class='loading'>Search for a book by title or author!</div>";
     } catch (e) {
-        bookGrid.innerHTML = "<div class='loading'>Failed to load database. Ensure mega_summary_kids.json is present.</div>";
+        bookGrid.innerHTML = "<div class='loading'>Failed to load database. Ensure mega_15k_kids.json is present.</div>";
     }
 }
 
