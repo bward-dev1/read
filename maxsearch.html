@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KidReads | Global Search</title>
     <style>
+        /* --- CORE STYLES (KidReads v2.0) --- */
         :root {
             --primary: #4a90e2;
             --primary-dark: #357abd;
@@ -12,78 +13,148 @@
             --card-bg: #ffffff;
             --text-main: #2d3436;
             --text-muted: #636e72;
-            --glass: rgba(255, 255, 255, 0.2);
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); }
+
+        body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg-body); color: var(--text-main); }
+
+        /* HEADER */
         header {
             padding: 40px 20px; text-align: center;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%);
-            color: white; display: flex; flex-direction: column; align-items: center; gap: 20px;
+            color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 20px; 
         }
-        .app-toggle {
-            display: flex; gap: 10px; background: rgba(255, 255, 255, 0.15);
-            padding: 5px; border-radius: 50px; backdrop-filter: blur(10px);
+        header::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: rotate 20s linear infinite; pointer-events: none;
         }
-        .toggle-btn { text-decoration: none; padding: 8px 20px; border-radius: 40px; font-size: 0.85rem; font-weight: 700; color: white; border:none; background:transparent; cursor:pointer;}
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        header h1 { position: relative; z-index: 1; margin: 0; font-size: 3rem; font-weight: 900; letter-spacing: -1.5px; text-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+        /* NAVIGATION & SEARCH BAR */
+        .app-toggle { position: relative; z-index: 2; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .toggle-container { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px; border-radius: 50px; display: flex; gap: 5px; }
+        .toggle-btn { text-decoration: none; padding: 8px 20px; border-radius: 40px; font-size: 0.85rem; font-weight: 700; color: white; transition: all 0.3s ease; cursor: pointer; border: none; background: transparent; }
         .toggle-btn.active { background: white; color: var(--primary-dark); }
 
         #searchBar {
-            padding: 15px 25px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.4);
-            background: rgba(255,255,255,0.2); color: white; width: 300px; font-size: 1.1rem;
-            outline: none; backdrop-filter: blur(10px); transition: all 0.3s ease;
+            position: relative; z-index: 1; padding: 15px 25px; border-radius: 50px;
+            border: 2px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.2);
+            color: white; width: 320px; max-width: 90%; font-size: 1.1rem; outline: none;
+            backdrop-filter: blur(10px); transition: all 0.3s ease; font-family: inherit;
         }
-        #searchBar:focus { width: 450px; background: white; color: black; }
-        #searchBar::placeholder { color: rgba(255,255,255,0.7); }
+        #searchBar:focus { width: 500px; background: white; color: black; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        #searchBar::placeholder { color: rgba(255,255,255,0.8); }
 
-        #bookGrid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 30px; padding: 40px; max-width: 1400px; margin: 0 auto;
-        }
-        .book-card {
-            background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow);
-            transition: transform 0.3s ease; overflow: hidden; cursor: pointer;
-        }
-        .book-card:hover { transform: translateY(-10px); }
+        /* GRID & CARDS */
+        #bookGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 35px; padding: 50px 40px; max-width: 1400px; margin: 0 auto; }
+        .book-card { background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; overflow: hidden; display: flex; flex-direction: column; animation: cardIn 0.6s ease-out backwards; }
+        @keyframes cardIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .book-card:hover { transform: translateY(-12px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2); }
         .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
-        .book-info { padding: 20px; }
+        .book-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); height: 2.8rem; overflow: hidden; }
-        .book-info p { margin: 5px 0; font-size: 0.85rem; color: var(--text-muted); }
+        .book-info p { margin: 10px 0 0; font-size: 0.85rem; font-weight: 700; color: var(--primary); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; background: #f1f8e9; color: #558b2f; margin-top: 10px; display: inline-block; }
         .loading { grid-column: 1 / -1; text-align: center; padding: 100px; font-size: 1.4rem; color: var(--primary-dark); }
+
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+            padding: 20px; box-sizing: border-box; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content {
+            background: white; border-radius: 24px; max-width: 800px; width: 100%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3); position: relative; overflow: hidden;
+            display: flex; flex-direction: row; animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 90vh;
+        }
+        @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: 0.2s; z-index: 10; display: flex; justify-content: center; align-items: center; }
+        .modal-close:hover { background: rgba(0,0,0,0.2); transform: rotate(90deg); }
+        .modal-img-container { width: 40%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .modal-img-container img { width: 100%; max-width: 250px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .modal-details { width: 60%; padding: 40px; display: flex; flex-direction: column; overflow-y: auto; }
+        .modal-details h2 { margin: 0 0 5px 0; font-size: 1.8rem; color: var(--text-main); line-height: 1.2; }
+        .modal-details .author { font-size: 1.1rem; color: var(--primary); font-weight: 700; margin-bottom: 15px; }
+        .modal-summary { font-size: 1rem; color: var(--text-muted); line-height: 1.6; margin-top: 20px; flex-grow: 1; }
+        .modal-btn { display: inline-block; background: var(--primary); color: white; text-align: center; padding: 15px 25px; border-radius: 50px; font-weight: 700; text-decoration: none; margin-top: 25px; transition: 0.2s; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4); }
+        .modal-btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .modal-content { flex-direction: column; }
+            .modal-img-container { width: 100%; padding: 30px 20px 10px; }
+            .modal-img-container img { max-width: 150px; }
+            .modal-details { width: 100%; padding: 20px 25px 30px; }
+        }
     </style>
 </head>
 <body>
 <header>
     <div class="app-toggle">
-        <a href="index.html" class="toggle-btn">MAX Browse</a>
-        <a href="maxsearch.html" class="toggle-btn active">Global Search</a>
+        <div class="toggle-container">
+            <a href="index.html" class="toggle-btn">MAX Browse</a>
+            <a href="maxsearch.html" class="toggle-btn active">Global Search</a>
+        </div>
     </div>
     <h1>🔍 Global Search</h1>
-    <input type="text" id="searchBar" placeholder="Search 4,600+ Scholastic books...">
+    <input type="text" id="searchBar" placeholder="Search thousands of books...">
 </header>
 
 <main id="bookGrid"></main>
+
+<div id="bookModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeModal(event)">✕</button>
+        <div class="modal-img-container">
+            <img id="mCover" src="" alt="Book Cover">
+        </div>
+        <div class="modal-details">
+            <h2 id="mTitle">Book Title</h2>
+            <div id="mAuthor" class="author">By Author</div>
+            <span id="mLevel" class="badge">Level</span>
+            <div id="mSummary" class="modal-summary">Summary goes here...</div>
+            <a id="mLink" href="#" target="_blank" class="modal-btn">🔍 Find on Google Books</a>
+        </div>
+    </div>
+</div>
 
 <script>
 let allBooks = [];
 const bookGrid = document.getElementById('bookGrid');
 const searchBar = document.getElementById('searchBar');
 
+// Modal Elements
+const modal = document.getElementById('bookModal');
+const mTitle = document.getElementById('mTitle');
+const mAuthor = document.getElementById('mAuthor');
+const mCover = document.getElementById('mCover');
+const mSummary = document.getElementById('mSummary');
+const mLevel = document.getElementById('mLevel');
+const mLink = document.getElementById('mLink');
+
 async function init() {
     bookGrid.innerHTML = "<div class='loading'>Syncing Local Database... 📡</div>";
     try {
-        const response = await fetch('mega_14k_kids.json'); 
+        const response = await fetch('mega_summary_kids.json'); 
         allBooks = await response.json();
         bookGrid.innerHTML = "<div class='loading'>Search for a book by title or author!</div>";
     } catch (e) {
-        bookGrid.innerHTML = "<div class='loading'>Failed to load database.</div>";
+        bookGrid.innerHTML = "<div class='loading'>Failed to load database. Ensure mega_summary_kids.json is present.</div>";
     }
 }
 
 searchBar.oninput = () => {
     const term = searchBar.value.toLowerCase().trim();
     if (term.length < 2) {
-        bookGrid.innerHTML = "<div class='loading'>Type to search...</div>";
+        bookGrid.innerHTML = "<div class='loading'>Type at least 2 characters...</div>";
         return;
     }
 
@@ -95,6 +166,32 @@ searchBar.oninput = () => {
     renderResults(results);
 };
 
+function showModal(book) {
+    mTitle.innerText = book.title;
+    mAuthor.innerText = book.author && book.author !== "Unknown" ? `By ${book.author}` : "Author Unknown";
+    mCover.src = book.cover || 'https://via.placeholder.com/300x450';
+    mSummary.innerText = book.summary || "No summary available for this book.";
+    mLevel.innerText = book.reading_level || 'General';
+
+    // Smart Link Generation
+    let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
+    const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
+    if (isbnMatch && isbnMatch[1]) {
+        directLink = `https://books.google.com/books?vid=ISBN${isbnMatch[1]}`;
+    }
+    mLink.href = directLink;
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; 
+}
+
+function closeModal(e) {
+    if (e.target === modal || e.target.classList.contains('modal-close')) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+}
+
 function renderResults(results) {
     if (results.length === 0) {
         bookGrid.innerHTML = "<div class='loading'>No matches found.</div>";
@@ -105,27 +202,21 @@ function renderResults(results) {
         const card = document.createElement('div');
         card.className = 'book-card';
         
-        let directLink = `https://books.google.com/books?q=intitle:"${encodeURIComponent(book.title)}"`;
-        const isbnMatch = (book.cover || "").match(/isbn\/(\d{13})/);
-        if (isbnMatch && isbnMatch[1]) {
-            directLink = `https://books.google.com/books?vid=ISBN${isbnMatch[1]}`;
-        }
-        card.onclick = () => window.open(directLink, '_blank');
-
-        const authorDisplay = (!book.author || book.author.toLowerCase().includes("unknown")) 
-            ? '<span style="color: var(--primary); font-weight: 600;">🔍 View on Google Books</span>' 
-            : book.author;
+        // Open modal on click
+        card.onclick = () => showModal(book);
 
         card.innerHTML = `
-            <img src="${book.cover || 'https://via.placeholder.com/200x300'}" alt="${book.title}">
+            <img src="${book.cover || 'https://via.placeholder.com/200x300'}" alt="${book.title}" loading="lazy">
             <div class="book-info">
                 <h4>${book.title}</h4>
-                <p>${authorDisplay}</p>
+                <p>${book.author && book.author !== "Unknown" ? book.author : 'Click to view details'}</p>
+                <div><span class="badge">${book.reading_level || 'General'}</span></div>
             </div>
         `;
         bookGrid.appendChild(card);
     });
 }
+
 init();
 </script>
 </body>
