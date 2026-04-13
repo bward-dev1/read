@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>KidReads | Global Search</title>
     <style>
-        :root { --primary: #4a90e2; --bg: #f0f2f5; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); }
+        :root { --primary: #4a90e2; --bg: #f0f2f5; --text: #2d3436; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
         
         header { 
             padding: 40px; text-align: center; 
@@ -20,21 +20,23 @@
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .app-toggle { position: relative; z-index: 2; display: flex; justify-content: center; }
-        .toggle-container { background: rgba(255,255,255,0.2); padding: 5px; border-radius: 50px; display: flex; }
-        .toggle-btn { text-decoration: none; padding: 8px 20px; border-radius: 40px; color: white; font-weight: bold; }
+        .toggle-container { background: rgba(255,255,255,0.2); padding: 5px; border-radius: 50px; display: flex; gap: 5px; backdrop-filter: blur(10px); }
+        .toggle-btn { text-decoration: none; padding: 8px 20px; border-radius: 40px; color: white; font-weight: bold; transition: 0.3s; }
         .toggle-btn.active { background: white; color: #764ba2; }
-        #searchBar { position: relative; z-index: 2; padding: 15px 25px; border-radius: 50px; border: none; width: 500px; max-width: 90%; font-size: 1.2rem; outline: none; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        #searchBar { position: relative; z-index: 2; padding: 15px 25px; border-radius: 50px; border: none; width: 500px; max-width: 90%; font-size: 1.2rem; outline: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: 0.3s; }
+        #searchBar:focus { transform: scale(1.02); }
         
-        #bookGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 40px; }
-        .book-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; }
-        .book-card:hover { transform: scale(1.03); }
+        #bookGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 40px; max-width: 1400px; margin: 0 auto; }
+        .book-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; }
+        .book-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
         .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
         .book-info { padding: 15px; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 20px; max-width: 600px; padding: 40px; position: relative; width: 100%; }
-        .modal-close { position: absolute; top: 15px; right: 15px; background: #eee; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; opacity: 0; transition: 0.3s; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content { background: white; border-radius: 20px; max-width: 600px; padding: 40px; position: relative; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: #eee; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; transition: 0.2s; font-weight: bold; }
+        .modal-close:hover { background: #ddd; transform: rotate(90deg); }
     </style>
 </head>
 <body>
@@ -45,17 +47,17 @@
             <a href="maxsearch.html" class="toggle-btn active">Search</a>
         </div>
     </div>
-    <h1>🔍 Global Search</h1>
-    <input type="text" id="searchBar" placeholder="Search 4,800+ books...">
+    <h1 style="margin:0; font-size: 2.5rem; text-shadow: 0 4px 10px rgba(0,0,0,0.2);">🔍 Global Search</h1>
+    <input type="text" id="searchBar" placeholder="Search 4,800+ stories...">
 </header>
 <main id="bookGrid"></main>
 
-<div id="bookModal" class="modal-overlay" onclick="this.classList.remove('active')">
+<div id="bookModal" class="modal-overlay" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <button class="modal-close" onclick="document.getElementById('bookModal').classList.remove('active')">✕</button>
-        <h2 id="mTitle"></h2>
-        <h4 id="mAuthor" style="color:var(--primary); font-size: 1.2rem; margin-top: 5px;"></h4>
-        <p id="mSummary" style="line-height:1.6; color:#555; margin-top: 20px;"></p>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h2 id="mTitle" style="margin:0; line-height:1.2;"></h2>
+        <h4 id="mAuthor" style="color:var(--primary); margin: 10px 0 0; font-size: 1.2rem;"></h4>
+        <p id="mSummary" style="line-height:1.6; color:#555; margin-top: 25px; font-size: 1.05rem;"></p>
     </div>
 </div>
 
@@ -65,10 +67,15 @@ async function init() {
     try {
         const response = await fetch('CLibrary_Final_Gold.json'); 
         allBooks = await response.json();
-        document.getElementById('bookGrid').innerHTML = "<div style='text-align:center;width:100%;padding:50px;'>Ready! Start typing to find a book.</div>";
+        document.getElementById('bookGrid').innerHTML = "<div style='text-align:center;width:100%;padding:100px;font-size:1.2rem;color:#777;'>Type a title or author to begin!</div>";
     } catch (e) {
-        document.getElementById('bookGrid').innerHTML = "<div style='text-align:center;width:100%;padding:50px;'>⚠️ Data missing.</div>";
+        document.getElementById('bookGrid').innerHTML = "<div style='text-align:center;width:100%;padding:100px;'>⚠️ Search database not found.</div>";
     }
+}
+
+function closeModal() {
+    document.getElementById('bookModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
 }
 
 document.getElementById('searchBar').oninput = (e) => {
@@ -85,8 +92,9 @@ document.getElementById('searchBar').oninput = (e) => {
             document.getElementById('mAuthor').innerText = `By ${book.author}`;
             document.getElementById('mSummary').innerText = book.summary.replace(/Show More/gi, '');
             document.getElementById('bookModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
         };
-        card.innerHTML = `<img src="${book.cover}"><div class="book-info"><b>${book.title}</b><br><small>${book.author}</small></div>`;
+        card.innerHTML = `<img src="${book.cover}"><div class="book-info"><b>${book.title}</b><br><small style="color:var(--primary); font-weight:bold;">${book.author}</small></div>`;
         grid.appendChild(card);
     });
 };
