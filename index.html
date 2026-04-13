@@ -17,6 +17,7 @@
         }
 
         body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); }
+        * { box-sizing: border-box; } /* Ensures padding doesn't break mobile width */
 
         /* THE FAMOUS SPINEE HEADER */
         header {
@@ -47,36 +48,15 @@
         #bookGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 35px; padding: 50px 40px; max-width: 1400px; margin: 0 auto; }
         
         .book-card { 
-            background: var(--card-bg); 
-            border-radius: 20px; 
-            box-shadow: var(--shadow); 
+            background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow); 
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            cursor: pointer; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100%; /* Stretches card to fill row */
+            cursor: pointer; overflow: hidden; display: flex; flex-direction: column; height: 100%; 
         }
         .book-card:hover { transform: translateY(-12px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2); }
         .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #eee; }
         
-        .book-info { 
-            padding: 20px; 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        .book-info h4 { 
-            margin: 0; 
-            font-size: 1.1rem; 
-            color: var(--text-main); 
-            min-height: 2.8rem; 
-            line-height: 1.4; 
-            display: block; 
-            white-space: normal; /* Allows long titles to wrap perfectly */
-            overflow: visible; 
-            flex-grow: 1; /* Acts as a spring to push author/badge to the bottom */
-        }
+        .book-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); min-height: 2.8rem; line-height: 1.4; white-space: normal; flex-grow: 1; }
         .book-info p { margin: 10px 0 0; font-size: 0.85rem; font-weight: 700; color: var(--primary); }
         .badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; margin-top: 10px; display: inline-block; background: #f1f8e9; color: #558b2f; }
 
@@ -91,7 +71,26 @@
         .modal-details { width: 60%; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
         .modal-summary { font-size: 1.05rem; color: var(--text-muted); line-height: 1.6; margin-top: 20px; flex-grow: 1; }
 
-        @media (max-width: 768px) { .modal-content { flex-direction: column; } .modal-img-container, .modal-details { width: 100%; } .modal-img-container img { max-width: 200px; } .modal-details { padding: 30px; } }
+        /* --- 📱 MOBILE OPTIMIZATIONS --- */
+        @media (max-width: 768px) { 
+            header { padding: 30px 15px; gap: 15px; }
+            header h1 { font-size: 2.2rem; }
+            .controls { flex-direction: column; width: 100%; max-width: 320px; }
+            select { width: 100%; }
+            
+            /* Fit 2 columns on phones */
+            #bookGrid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px 15px; }
+            .book-info { padding: 15px; }
+            .book-info h4 { font-size: 1rem; min-height: 2.6rem; }
+            
+            /* Native App Scrolling for Modal */
+            .modal-content { display: block; overflow-y: auto; max-height: 85vh; border-radius: 16px; }
+            .modal-img-container { width: 100%; padding: 30px 20px 20px; }
+            .modal-img-container img { max-width: 150px; margin: 0 auto; display: block; }
+            .modal-details { width: 100%; padding: 20px; overflow-y: visible; }
+            .modal-details h2 { font-size: 1.5rem !important; }
+            .modal-close { width: 40px; height: 40px; top: 10px; right: 10px; background: rgba(0,0,0,0.15); }
+        }
     </style>
 </head>
 <body>
@@ -191,7 +190,7 @@ function loadMore() {
             document.getElementById('bookModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         };
-        card.innerHTML = `<img src="${book.cover}"><div class="book-info"><h4>${book.title}</h4><p>${book.author}</p><div><span class="badge">${book.reading_level || 'General'}</span></div></div>`;
+        card.innerHTML = `<img src="${book.cover}"><div class="book-info"><h4>${book.title}</h4><p>${book.author}</p><div><span class="badge">Grades: ${book.reading_level || 'General'}</span></div></div>`;
         grid.appendChild(card);
     });
     displayedCount += LOAD_BATCH;
