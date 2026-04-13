@@ -6,20 +6,35 @@
     <style>
         :root { --primary: #4a90e2; --bg: #f0f2f5; }
         body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); }
-        header { padding: 40px; text-align: center; background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-        .app-toggle { display: flex; justify-content: center; margin-bottom: 20px; }
+        
+        header { 
+            padding: 40px; text-align: center; 
+            background: linear-gradient(135deg, #667eea, #764ba2, #4a00e0); color: white;
+            position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 20px;
+        }
+        header::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: rotate 20s linear infinite; pointer-events: none;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .app-toggle { position: relative; z-index: 2; display: flex; justify-content: center; }
         .toggle-container { background: rgba(255,255,255,0.2); padding: 5px; border-radius: 50px; display: flex; }
         .toggle-btn { text-decoration: none; padding: 8px 20px; border-radius: 40px; color: white; font-weight: bold; }
         .toggle-btn.active { background: white; color: #764ba2; }
-        #searchBar { padding: 15px 25px; border-radius: 50px; border: none; width: 500px; max-width: 90%; font-size: 1.2rem; outline: none; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        #searchBar { position: relative; z-index: 2; padding: 15px 25px; border-radius: 50px; border: none; width: 500px; max-width: 90%; font-size: 1.2rem; outline: none; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        
         #bookGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 40px; }
-        .book-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s; }
+        .book-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s; }
         .book-card:hover { transform: scale(1.03); }
         .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
         .book-info { padding: 15px; }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 20px; max-width: 600px; padding: 40px; position: relative; }
+        .modal-content { background: white; border-radius: 20px; max-width: 600px; padding: 40px; position: relative; width: 100%; }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: #eee; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -37,45 +52,42 @@
 
 <div id="bookModal" class="modal-overlay" onclick="this.classList.remove('active')">
     <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="document.getElementById('bookModal').classList.remove('active')">✕</button>
         <h2 id="mTitle"></h2>
-        <h4 id="mAuthor" style="color:var(--primary)"></h4>
-        <p id="mSummary" style="line-height:1.6; color:#555"></p>
-        <a id="mLink" href="#" target="_blank" style="color:var(--primary); font-weight:bold;">View Source →</a>
+        <h4 id="mAuthor" style="color:var(--primary); font-size: 1.2rem; margin-top: 5px;"></h4>
+        <p id="mSummary" style="line-height:1.6; color:#555; margin-top: 20px;"></p>
     </div>
 </div>
 
 <script>
 let allBooks = [];
-const bookGrid = document.getElementById('bookGrid');
-const searchBar = document.getElementById('searchBar');
-
 async function init() {
     try {
         const response = await fetch('CLibrary_Final_Gold.json'); 
         allBooks = await response.json();
-        bookGrid.innerHTML = "<div style='text-align:center; width:100%; padding:50px;'>Ready! Start typing to find a book.</div>";
+        document.getElementById('bookGrid').innerHTML = "<div style='text-align:center;width:100%;padding:50px;'>Ready! Start typing to find a book.</div>";
     } catch (e) {
-        bookGrid.innerHTML = "<div style='text-align:center; width:100%; padding:50px;'>⚠️ CLibrary_Final_Gold.json missing.</div>";
+        document.getElementById('bookGrid').innerHTML = "<div style='text-align:center;width:100%;padding:50px;'>⚠️ Data missing.</div>";
     }
 }
 
-searchBar.oninput = () => {
-    const term = searchBar.value.toLowerCase().trim();
+document.getElementById('searchBar').oninput = (e) => {
+    const term = e.target.value.toLowerCase().trim();
     if (term.length < 2) return;
-    const results = allBooks.filter(b => b.title.toLowerCase().includes(term) || b.author.toLowerCase().includes(term)).slice(0, 40);
-    bookGrid.innerHTML = "";
+    const results = allBooks.filter(b => b.title.toLowerCase().includes(term) || (b.author || "").toLowerCase().includes(term)).slice(0, 40);
+    const grid = document.getElementById('bookGrid');
+    grid.innerHTML = "";
     results.forEach(book => {
         const card = document.createElement('div');
         card.className = 'book-card';
         card.onclick = () => {
             document.getElementById('mTitle').innerText = book.title;
-            document.getElementById('mAuthor').innerText = book.author;
+            document.getElementById('mAuthor').innerText = `By ${book.author}`;
             document.getElementById('mSummary').innerText = book.summary.replace(/Show More/gi, '');
-            document.getElementById('mLink').href = book.url;
             document.getElementById('bookModal').classList.add('active');
         };
         card.innerHTML = `<img src="${book.cover}"><div class="book-info"><b>${book.title}</b><br><small>${book.author}</small></div>`;
-        bookGrid.appendChild(card);
+        grid.appendChild(card);
     });
 };
 init();
