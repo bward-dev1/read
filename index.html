@@ -18,47 +18,50 @@
 
         body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); }
 
+        /* THE FAMOUS SPINEE HEADER RESTORED */
         header {
             padding: 40px 20px; text-align: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            display: flex; flex-direction: column; align-items: center; gap: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%);
+            color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 20px; 
         }
+        header::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: rotate 20s linear infinite; pointer-events: none;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        header h1 { margin: 0; font-size: 3rem; font-weight: 900; letter-spacing: -1.5px; }
+        header h1 { position: relative; z-index: 1; margin: 0; font-size: 3rem; font-weight: 900; letter-spacing: -1.5px; text-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 
-        .app-toggle { display: flex; gap: 10px; }
-        .toggle-container { background: rgba(255, 255, 255, 0.2); padding: 5px; border-radius: 50px; display: flex; }
-        .toggle-btn { text-decoration: none; padding: 8px 20px; border-radius: 40px; font-size: 0.85rem; font-weight: 700; color: white; }
+        .app-toggle { position: relative; z-index: 2; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .toggle-container { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px; border-radius: 50px; display: flex; gap: 5px; }
+        .toggle-btn { text-decoration: none; padding: 8px 20px; border-radius: 40px; font-size: 0.85rem; font-weight: 700; color: white; transition: 0.3s; }
         .toggle-btn.active { background: white; color: var(--primary-dark); }
 
-        .controls { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-        select { padding: 12px 20px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.3); background: var(--glass); backdrop-filter: blur(10px); color: white; font-weight: 600; cursor: pointer; }
+        .controls { position: relative; z-index: 1; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        select { padding: 12px 20px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.3); background: var(--glass); backdrop-filter: blur(10px); font-size: 0.95rem; font-weight: 600; color: white; cursor: pointer; outline: none; }
         select option { color: black; }
 
         #bookGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 35px; padding: 50px 40px; max-width: 1400px; margin: 0 auto; }
-        .book-card { background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow); transition: transform 0.3s ease; cursor: pointer; overflow: hidden; display: flex; flex-direction: column; }
-        .book-card:hover { transform: translateY(-10px); }
+        .book-card { background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; overflow: hidden; display: flex; flex-direction: column; }
+        .book-card:hover { transform: translateY(-12px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2); }
         .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #eee; }
-        .book-info { padding: 20px; }
-        .book-info h4 { margin: 0; font-size: 1.1rem; height: 2.8rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .book-info p { margin: 10px 0 0; font-size: 0.85rem; color: var(--primary); font-weight: bold; }
+        .book-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); height: 2.8rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .book-info p { margin: 10px 0 0; font-size: 0.85rem; font-weight: 700; color: var(--primary); }
+        .badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; margin-top: 10px; display: inline-block; background: #f1f8e9; color: #558b2f; }
 
-        .badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; margin-top: 10px; display: inline-block; background: #e1f5fe; color: #0288d1; }
-
-        /* MODAL */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 24px; max-width: 800px; width: 100%; display: flex; overflow: hidden; position: relative; max-height: 90vh; }
-        .modal-close { position: absolute; top: 15px; right: 15px; border: none; background: #eee; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; }
-        .modal-img { width: 40%; background: #f8f9fa; padding: 40px; display: flex; align-items: center; }
-        .modal-img img { width: 100%; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content { background: white; border-radius: 24px; max-width: 800px; width: 100%; display: flex; position: relative; overflow: hidden; max-height: 90vh; }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .modal-img-container { width: 40%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .modal-img-container img { width: 100%; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .modal-details { width: 60%; padding: 40px; overflow-y: auto; }
-        .modal-details h2 { margin: 0; font-size: 1.8rem; }
-        .modal-summary { font-size: 1rem; line-height: 1.6; color: var(--text-muted); margin-top: 20px; }
-        .modal-btn { display: inline-block; margin-top: 25px; padding: 15px 25px; background: var(--primary); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; }
+        .modal-summary { font-size: 1rem; color: var(--text-muted); line-height: 1.6; margin-top: 20px; }
 
-        @media (max-width: 600px) { .modal-content { flex-direction: column; } .modal-img, .modal-details { width: 100%; } }
+        @media (max-width: 768px) { .modal-content { flex-direction: column; } .modal-img-container, .modal-details { width: 100%; } .modal-img-container img { max-width: 200px; } }
     </style>
 </head>
 <body>
@@ -74,11 +77,11 @@
     <div class="controls">
         <select id="ageSelect">
             <option value="">All Ages</option>
-            <option value="Pre-K">Pre-K</option>
-            <option value="1 - 3">Grades 1-3</option>
-            <option value="2 - 5" selected>Grades 2-5</option>
-            <option value="4 - 7">Grades 4-7</option>
-            <option value="7 - 12">Teens</option>
+            <option value="Pre-K">Pre-K - Grade 1</option>
+            <option value="1 - 3">Grades 1 - 3</option>
+            <option value="2 - 5" selected>Grades 2 - 5</option>
+            <option value="4 - 7">Grades 4 - 7</option>
+            <option value="7 - 12">Teens 7 - 12</option>
         </select>
         <select id="genreSelect">
             <option value="">All Genres</option>
@@ -86,9 +89,10 @@
             <option value="Fantasy">Fantasy</option>
             <option value="Mystery">Mystery</option>
             <option value="Humor">Humor</option>
-            <option value="Graphic Novel">Graphic Novels</option>
+            <option value="Graphic Novels">Graphic Novels</option>
             <option value="Scary">Scary</option>
             <option value="Animals">Animals</option>
+            <option value="History">History</option>
         </select>
     </div>
 </header>
@@ -98,29 +102,24 @@
 <div id="bookModal" class="modal-overlay" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="modal-close" onclick="closeModal()">✕</button>
-        <div class="modal-img"><img id="mCover" src=""></div>
+        <div class="modal-img-container"><img id="mCover" src=""></div>
         <div class="modal-details">
             <h2 id="mTitle"></h2>
-            <div id="mAuthor" style="color:var(--primary); font-weight:bold; margin-top:5px;"></div>
+            <div id="mAuthor" style="color:var(--primary); font-weight:bold; font-size: 1.2rem; margin-top: 5px;"></div>
             <div id="mSummary" class="modal-summary"></div>
-            <a id="mLink" href="#" target="_blank" class="modal-btn">🔍 View Source</a>
         </div>
     </div>
 </div>
 
 <script>
 let allBooks = [];
+let filteredBooks = [];
 let displayedCount = 0;
 const LOAD_BATCH = 40;
 
-// Filters out Scholastic marketing phrases
 function cleanSummary(text) {
     if (!text) return "No description available.";
-    return text
-        .replace(/Pick a book\. Grow a Reader!.*/gi, '')
-        .replace(/This series is part of Scholastic's early reader line.*/gi, '')
-        .replace(/Show More/gi, '')
-        .trim();
+    return text.replace(/DESCRIPTION/gi, '').replace(/Show More/gi, '').trim();
 }
 
 async function init() {
@@ -129,35 +128,28 @@ async function init() {
         allBooks = await response.json();
         updateFilter();
     } catch (e) {
-        document.getElementById('bookGrid').innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:100px;'>⚠️ <b>Error:</b> CLibrary_Final_Gold.json not found.</div>";
+        document.getElementById('bookGrid').innerHTML = "<div style='grid-column:1/-1;text-align:center;padding:100px;'>⚠️ Please upload <b>CLibrary_Final_Gold.json</b> to the /read/ folder.</div>";
     }
 }
 
 function updateFilter() {
-    const grid = document.getElementById('bookGrid');
-    grid.innerHTML = "";
+    document.getElementById('bookGrid').innerHTML = "";
     displayedCount = 0;
-    
     const age = document.getElementById('ageSelect').value;
     const genre = document.getElementById('genreSelect').value.toLowerCase();
 
-    const filtered = allBooks.filter(b => {
-        const matchesGenre = genre === "" || (b.genre || "").toLowerCase().includes(genre);
-        const matchesAge = age === "" || (b.reading_level || "").includes(age);
+    filteredBooks = allBooks.filter(book => {
+        const matchesGenre = genre === "" || (book.genre || "").toLowerCase().includes(genre);
+        const matchesAge = age === "" || (book.reading_level || "").includes(age);
         return matchesGenre && matchesAge;
     });
 
-    renderBatch(filtered);
-    window.onscroll = () => {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-            renderBatch(filtered);
-        }
-    };
+    loadMore();
 }
 
-function renderBatch(list) {
+function loadMore() {
     const grid = document.getElementById('bookGrid');
-    const nextBatch = list.slice(displayedCount, displayedCount + LOAD_BATCH);
+    const nextBatch = filteredBooks.slice(displayedCount, displayedCount + LOAD_BATCH);
     nextBatch.forEach(book => {
         const card = document.createElement('div');
         card.className = 'book-card';
@@ -166,7 +158,6 @@ function renderBatch(list) {
             document.getElementById('mAuthor').innerText = `By ${book.author}`;
             document.getElementById('mCover').src = book.cover;
             document.getElementById('mSummary').innerText = cleanSummary(book.summary);
-            document.getElementById('mLink').href = book.url;
             document.getElementById('bookModal').classList.add('active');
         };
         card.innerHTML = `<img src="${book.cover}"><div class="book-info"><h4>${book.title}</h4><p>${book.author}</p><span class="badge">${book.reading_level}</span></div>`;
@@ -177,6 +168,14 @@ function renderBatch(list) {
 
 function closeModal() { document.getElementById('bookModal').classList.remove('active'); }
 
+window.onscroll = () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
+        if (displayedCount < filteredBooks.length) loadMore();
+    }
+};
+
+document.getElementById('ageSelect').onchange = updateFilter;
+document.getElementById('genreSelect').onchange = updateFilter;
 init();
 </script>
 </body>
