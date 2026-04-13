@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KidReads | Global Search</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --primary-dark: #357abd;
+            --bg-body: #f0f2f5; 
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+            --text-muted: #636e72;
+            --glass: rgba(255, 255, 255, 0.2);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); }
+        * { box-sizing: border-box; } 
+
+        header {
+            padding: 40px 20px; text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a00e0 100%);
+            color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 20px; 
+        }
+        header::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: rotate 20s linear infinite; pointer-events: none;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        header h1 { position: relative; z-index: 1; margin: 0; font-size: 3rem; font-weight: 900; letter-spacing: -1.5px; text-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+        .app-toggle { position: relative; z-index: 2; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .toggle-container { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px; border-radius: 50px; display: flex; gap: 5px; }
+        .toggle-btn { text-decoration: none; padding: 8px 20px; border-radius: 40px; font-size: 0.85rem; font-weight: 700; color: white; transition: all 0.3s ease; }
+        .toggle-btn.active { background: white; color: var(--primary-dark); }
+
+        #searchBar { position: relative; z-index: 2; padding: 15px 25px; border-radius: 50px; border: none; width: 500px; max-width: 100%; font-size: 1.2rem; outline: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: 0.3s; }
+        #searchBar:focus { transform: scale(1.02); }
+
+        #bookGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 35px; padding: 50px 40px; max-width: 1400px; margin: 0 auto; }
+        
+        .book-card { 
+            background: var(--card-bg); border-radius: 20px; box-shadow: var(--shadow); 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            cursor: pointer; overflow: hidden; display: flex; flex-direction: column; height: 100%; 
+        }
+        .book-card:hover { transform: translateY(-12px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2); }
+        .book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background: #eee; }
+        
+        .book-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .book-info h4 { margin: 0; font-size: 1.1rem; color: var(--text-main); min-height: 2.8rem; line-height: 1.4; white-space: normal; flex-grow: 1; }
+        .book-info p { margin: 10px 0 0; font-size: 0.85rem; font-weight: 700; color: var(--primary); }
+        .badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; margin-top: 10px; display: inline-block; background: #f1f8e9; color: #558b2f; }
+
+        /* NEXUS BADGES */
+        .rating-badge { background: #fff9db; color: #f08c00; font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 5px; }
+        .tag-container { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+        .tag-pill { background: #e9ecef; color: #495057; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; text-transform: capitalize; }
+
+        /* DESKTOP MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content { background: white; border-radius: 24px; max-width: 800px; width: 100%; display: flex; position: relative; overflow: hidden; max-height: 90vh; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.2s; }
+        .modal-close:hover { background: rgba(0,0,0,0.2); transform: rotate(90deg); }
+        .modal-img-container { width: 40%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .modal-img-container img { width: 100%; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .modal-details { width: 60%; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
+        
+        /* Modal Typography Cleaned Up */
+        .modal-details h2 { margin: 0; font-size: 1.8rem; line-height: 1.2; color: var(--text-main); }
+        .modal-author { color: var(--primary); font-weight: bold; font-size: 1.2rem; margin-top: 8px; }
+        .modal-summary { font-size: 1.05rem; color: var(--text-muted); line-height: 1.6; margin-top: 20px; flex-grow: 1; }
+
+        /* --- 📱 BULLETPROOF MOBILE FIX --- */
+        @media (max-width: 768px) { 
+            header { padding: 30px 15px; gap: 15px; }
+            header h1 { font-size: 2.2rem; }
+            #searchBar { font-size: 1rem; padding: 12px 20px; width: 100%; max-width: 350px; }
+            
+            #bookGrid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px 15px; }
+            .book-info { padding: 15px; }
+            .book-info h4 { font-size: 1rem; min-height: 2.6rem; }
+            
+            /* Forces the modal to stack vertically instead of squishing text side-by-side */
+            .modal-content { flex-direction: column; overflow-y: auto; max-height: 85vh; border-radius: 16px; }
+            .modal-img-container { width: 100%; padding: 40px 20px 10px; display: block; }
+            .modal-img-container img { max-width: 140px; margin: 0 auto; display: block; }
+            .modal-details { width: 100%; padding: 15px 25px 30px; overflow-y: visible; }
+            .modal-details h2 { font-size: 1.4rem; }
+            .modal-close { width: 40px; height: 40px; top: 10px; right: 10px; background: rgba(0,0,0,0.15); }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="app-toggle">
+        <div class="toggle-container">
+            <a href="max.html" class="toggle-btn">MAX Browse</a>
+            <a href="search.html" class="toggle-btn active">Search For Books</a>
+        </div>
+    </div>
+    <h1>🔍 Global Search</h1>
+    <input type="text" id="searchBar" placeholder="Search 4,800+ stories...">
+</header>
+
+<main id="bookGrid"></main>
+
+<div id="bookModal" class="modal-overlay" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-img-container"><img id="mCover" src=""></div>
+        <div class="modal-details">
+            <h2 id="mTitle"></h2>
+            <div id="mAuthor" class="modal-author"></div>
+            <div id="mSummary" class="modal-summary"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allBooks = [];
+
+async function init() {
+    try {
+        const response = await fetch('KR_Nexus_Vault.json'); 
+        allBooks = await response.json();
+        document.getElementById('bookGrid').innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:100px 20px; font-size:1.2rem; color:var(--text-muted);'>Type a title or author to begin!</div>";
+    } catch (e) {
+        document.getElementById('bookGrid').innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:100px;'>⚠️ Data Connection Error.</div>";
+    }
+}
+
+function closeModal() {
+    document.getElementById('bookModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+document.getElementById('searchBar').oninput = (e) => {
+    const term = e.target.value.toLowerCase().trim();
+    const grid = document.getElementById('bookGrid');
+    
+    if (term.length < 2) {
+        grid.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:100px 20px; font-size:1.2rem; color:var(--text-muted);'>Type a title or author to begin!</div>";
+        return;
+    }
+
+    const results = allBooks.filter(b => b.title.toLowerCase().includes(term) || (b.author || "").toLowerCase().includes(term)).slice(0, 40);
+    grid.innerHTML = "";
+
+    if (results.length === 0) {
+        grid.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:100px 20px; font-size:1.2rem; color:var(--text-muted);'>No books found for that search.</div>";
+        return;
+    }
+
+    results.forEach(book => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        
+        const ratingHTML = book.rating && book.rating !== "N/A" ? `⭐ ${book.rating}` : "";
+        const tagsHTML = book.tags && book.tags.length > 0 
+            ? book.tags.map(t => `<span class="tag-pill">${t}</span>`).join('') 
+            : "";
+
+        card.onclick = () => {
+            document.getElementById('mTitle').innerText = book.title;
+            const reviewText = book.reviews && book.reviews !== "0" ? ` | ${book.reviews} Goodreads Reviews` : "";
+            const ratingText = book.rating && book.rating !== "N/A" ? ` (${book.rating} ⭐${reviewText})` : "";
+            document.getElementById('mAuthor').innerText = `By ${book.author}${ratingText}`;
+            document.getElementById('mCover').src = book.cover;
+            document.getElementById('mSummary').innerText = book.summary.replace(/Show More/gi, '').trim();
+            document.getElementById('bookModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+        
+        card.innerHTML = `
+            <img src="${book.cover}" loading="lazy">
+            <div class="book-info">
+                <div class="card-meta">
+                    ${ratingHTML ? `<span class="rating-badge">${ratingHTML}</span>` : ''}
+                </div>
+                <h4>${book.title}</h4>
+                <p>${book.author}</p>
+                <div class="tag-container">${tagsHTML}</div>
+                <div><span class="badge">Grades: ${book.reading_level || 'General'}</span></div>
+            </div>`;
+        grid.appendChild(card);
+    });
+};
+
+init();
+</script>
+</body>
+</html>
